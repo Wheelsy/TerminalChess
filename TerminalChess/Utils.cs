@@ -10,11 +10,11 @@ namespace TerminalChess
     {
         public string welcome =
             """
-             _/|                    |\_
-            // -\                   /- \\
-            || ._)                 (_. ||
-            //__\                   /__\\
-            )___(  TERMINAL CHESS   )___(
+             _/|                   |\_
+            // -\                  /- \\
+            || ._)                (_. ||
+            //__\                  /__\\
+            )___(  TERMINAL CHESS  )___(
 
             """;
 
@@ -47,5 +47,10 @@ namespace TerminalChess
         public string inputPrompt = ">";
 
         public string goodbye = "Goodbye =]";
+
+        public void Print(string txt)
+        {
+            Console.WriteLine(txt);
+        }
     }
 }

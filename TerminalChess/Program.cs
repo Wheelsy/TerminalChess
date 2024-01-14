@@ -1,2 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using TerminalChess;
+
+Utils utils = new Utils();
+
+utils.Print(utils.welcome);
+utils.Print(utils.mainMenu);
