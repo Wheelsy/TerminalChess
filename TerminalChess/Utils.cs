@@ -83,6 +83,14 @@ namespace TerminalChess
                         if (tmp.Equals("0"))
                         {
                             // START A NEW GAME
+                            Console.WriteLine("Enter player 1 name:");
+                            string p1Name = Console.ReadLine();
+
+                            Console.WriteLine("Enter player 2 name:");
+                            string p2Name = Console.ReadLine();
+
+                            Player p1 = new(p1Name);
+                            Player p2 = new(p2Name);
                         }
                         else if (tmp.Equals("1"))
                         {
