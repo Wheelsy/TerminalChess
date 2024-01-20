@@ -8,7 +8,7 @@ namespace TerminalChess
 {
     internal class Bishop : Piece
     {
-        public Bishop(Color color) : base("Bishop", 3, color)
+        public Bishop(Colour colour) : base("B", 3, colour)
         {
         }
 

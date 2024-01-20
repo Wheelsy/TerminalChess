@@ -8,7 +8,7 @@ namespace TerminalChess
 {
     internal class Rook : Piece
     {
-        public Rook(Color color) : base("Knight", 5, color)
+        public Rook(Colour colour) : base("R", 5, colour)
         {
         }
 

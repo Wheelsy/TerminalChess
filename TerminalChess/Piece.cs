@@ -9,18 +9,19 @@ namespace TerminalChess
 {
     internal class Piece
     {
-        public enum Color
+        public enum Colour
         {
             White,
             Black
         }
 
-        private string name;
+        public string name { get; }
+        public Colour color { get; }
+
         private int value;
         private List<string> possibleMoves;
-        private Color color;
 
-        public Piece(string name, int value, Color colour)
+        public Piece(string name, int value, Colour colour)
         {
             this.name = name;
             this.value = value;

@@ -8,7 +8,7 @@ namespace TerminalChess
 {
     internal class Queen : Piece
     {
-        public Queen(Color color) : base("Queen", 9, color)
+        public Queen(Colour colour) : base("Q", 9, colour)
         {
         }
 

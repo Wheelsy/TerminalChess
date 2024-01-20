@@ -8,7 +8,7 @@ namespace TerminalChess
 {
     internal class Pawn : Piece
     {
-        public Pawn(Color color) : base("Pawn", 1, color)
+        public Pawn(Colour colour) : base("P", 1, colour)
         {
         }
 

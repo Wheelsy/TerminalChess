@@ -10,7 +10,7 @@ namespace TerminalChess
     {
         private int col;
         private int row;
-        private Piece piece;
+        public Piece piece { get; set; }
 
         public  Square(int col, int row, Piece piece)
         {

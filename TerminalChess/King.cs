@@ -8,7 +8,7 @@ namespace TerminalChess
 {
     internal class King : Piece
     {
-        public King(Color color) : base("King", 0, color)
+        public King(Colour colour) : base("K", 0, colour)
         {
         }
 
