@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Pastel;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,10 +10,19 @@ namespace TerminalChess
 {
     internal class Knight : Piece
     {
-        public Knight(Colour colour) : base("N", 3, colour)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="colour"></param>
+        public Knight(Colour colour) : base("", 3, colour)
         {
+            // Set append the name string with the appropraite colour code
+            name += (colour == Piece.Colour.Black) ? "N".Pastel(Color.Chocolate) : "N".Pastel(Color.SandyBrown);
         }
 
+        /// <summary>
+        /// Overriden method to caluculate the legal moves for a Knight
+        /// </summary>
         protected override void CalculatePossibleMoves()
         {
             base.CalculatePossibleMoves();

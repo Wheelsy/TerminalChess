@@ -74,15 +74,16 @@ namespace TerminalChess
             // While the users response is invalid repeat the prompt
             while (tmp == null)
             {
+                // Get the input
                 Console.Write(inputPrompt);
                 tmp = Console.ReadLine();
 
                 switch (menuType)
                 {
                     case MENU_TYPES.MAIN:
+                        // START A NEW GAME
                         if (tmp.Equals("0"))
                         {
-                            // START A NEW GAME
                             Console.WriteLine("\nEnter player 1 name:");
                             string p1Name = Console.ReadLine();
 
@@ -99,39 +100,40 @@ namespace TerminalChess
                             string view = ge.View();
                             Print(view);
                         }
+                        // LOAD A GAME
                         else if (tmp.Equals("1"))
                         {
-                            // LOAD A GAME
                         }
+                        // EXIT THE APPLICATION
                         else if (tmp.Equals("2"))
                         {
-                            // EXIT THE APPLICATION
                         }
+                        // SHOW THE CREDITS
                         else if (tmp.Equals("3"))
                         {
-                            // SHOW THE CREDITS
                         }
                         break;
                     case MENU_TYPES.OPTIONS:
+                        // SAVE THE CURRENT GAME
                         if (tmp.Equals("0"))
                         {
-                            // SAVE THE CURRENT GAME
                         }
+                        // EXIT THE CURRENT GAME
                         else if (tmp.Equals("1"))
                         {
-                            // EXIT THE CURRENT GAME
                         }
                         break;
                     case MENU_TYPES.GAME_OVER:
+                        // RETURN TO MAIN MENU
                         if (tmp.Equals("0"))
                         {
-                            // RETURN TO MAIN MENU
                         }
+                        // EXIT THE APPLICATION
                         else if (tmp.Equals("1"))
                         {
-                            // EXIT THE APPLICATION
                         }
                         break;
+                    // Wrong input. Restart the loop
                     default:
                         Console.WriteLine("Invalid input! Try again:");
                         tmp = null;

@@ -8,16 +8,15 @@ namespace TerminalChess
 {
     internal class Player
     {
-        private string username;
+        public string username { get; set; }
         public bool MyTurn { get; set; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="username"></param>
         public Player(string username) { 
             this.username = username;
-        }
-
-        public string GetUsername()
-        {
-            return username;
         }
     }
 }

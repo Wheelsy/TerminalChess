@@ -36,12 +36,16 @@ namespace TerminalChess
         /// </summary>
         public void AddPiecesToBoard()
         {
-            for(int k = 0; k < cols; k++)
+            // Iterate through column
+            for (int k = 0; k < cols; k++)
             {
+                // Iterate through rows
                 for (int i = 0; i < rows; i++)
                 {
+                    // First column
                     if (k == 0)
                     {
+                        // Rook rows
                         if(i == 0 || i == 7)
                         {
                             Rook rook = new(Piece.Colour.White);
@@ -49,6 +53,7 @@ namespace TerminalChess
                             sqr.piece = rook;
                             board.Add(sqr);
                         }
+                        // Knight rows
                         else if(i == 1 || i == 6)
                         {
                             Knight knight = new(Piece.Colour.White);
@@ -56,6 +61,7 @@ namespace TerminalChess
                             sqr.piece = knight;
                             board.Add(sqr);
                         }
+                        // Bishop rows
                         else if(i == 2 || i == 5)
                         {
                             Bishop bishop = new(Piece.Colour.White);
@@ -63,6 +69,7 @@ namespace TerminalChess
                             sqr.piece = bishop;
                             board.Add(sqr);
                         }
+                        // Queen row
                         else if (i == 3)
                         {
                             Queen queen = new(Piece.Colour.White);
@@ -70,6 +77,7 @@ namespace TerminalChess
                             sqr.piece = queen;
                             board.Add(sqr);
                         }
+                        // King row
                         else if (i == 4)
                         {
                             King king = new(Piece.Colour.White);
@@ -78,6 +86,7 @@ namespace TerminalChess
                             board.Add(sqr);
                         }
                     }
+                    // Second column (pawns)
                     else if (k == 1)
                     {
                         Pawn pawn = new(Piece.Colour.White);
@@ -85,6 +94,7 @@ namespace TerminalChess
                         sqr.piece = pawn;
                         board.Add(sqr);
                     }
+                    // Seventh column (pawns)
                     else if (k == 6)
                     {
                         Pawn pawn = new(Piece.Colour.Black);
@@ -92,8 +102,10 @@ namespace TerminalChess
                         sqr.piece = pawn;
                         board.Add(sqr);
                     }
+                    // Eighth column
                     else if (k == 7)
                     {
+                        // Rook rows
                         if (i == 0 || i == 7)
                         {
                             Rook rook = new(Piece.Colour.Black);
@@ -101,6 +113,7 @@ namespace TerminalChess
                             sqr.piece = rook;
                             board.Add(sqr);
                         }
+                        // Knight rows
                         else if (i == 1 || i == 6)
                         {
                             Knight knight = new(Piece.Colour.Black);
@@ -108,6 +121,7 @@ namespace TerminalChess
                             sqr.piece = knight;
                             board.Add(sqr);
                         }
+                        // Bishop rows
                         else if (i == 2 || i == 5)
                         {
                             Bishop bishop = new(Piece.Colour.Black);
@@ -115,6 +129,7 @@ namespace TerminalChess
                             sqr.piece = bishop;
                             board.Add(sqr);
                         }
+                        // Queen row
                         else if (i == 3)
                         {
                             Queen queen = new(Piece.Colour.Black);
@@ -122,6 +137,7 @@ namespace TerminalChess
                             sqr.piece = queen;
                             board.Add(sqr);
                         }
+                        // King row
                         else if (i == 4)
                         {
                             King king = new(Piece.Colour.Black);
@@ -130,6 +146,7 @@ namespace TerminalChess
                             board.Add(sqr);
                         }
                     }
+                    // All other squares are empty and are added with a NULL piece
                     else
                     {
                         Square sqr = new(i, k, null);
@@ -139,12 +156,18 @@ namespace TerminalChess
             }
         }
 
+        /// <summary>
+        /// Construct a view of the board and return it as a string to be printed
+        /// </summary>
+        /// <returns>A string representing the state of the board</returns>
         public string View()
         {
             string view = "";
-            Utils utils = new();
-            string currentPlayer = (p1.MyTurn) ? p1.GetUsername() : p2.GetUsername();
 
+            // Get the player whos turn it is
+            string currentPlayer = (p1.MyTurn) ? p1.username : p2.username;
+
+            // Iterate over every square and print the piece name as well as "|" deviders between squares
             for (int row = 0; row < rows; row++)
             {
                 view += "|"; // Start of the row
@@ -155,27 +178,20 @@ namespace TerminalChess
 
                     if (board[index].piece == null)
                     {
-                        view += " |"; // Space between squares
+                        view += " |"; // Square border
                     }
                     else
                     {
-                        if (board[index].piece.color != Piece.Colour.Black)
-                        {
-                            view += $"{board[index].piece.name}".Pastel(Color.Chocolate); // Piece and end of square with colour
-                            view += "|";
-                        }
-                        else
-                        {
-                            view += $"{board[index].piece.name}".Pastel(Color.SandyBrown); // Piece and end of square
-                            view += "|";
-                        }
+
+                            view += $"{board[index].piece.name}"; // Piece
+                            view += "|"; // Square border
                     }
                 }
 
                 view += "\n";
             }
 
-           view += $"\n{currentPlayer} your turn:";
+            view += $"\n{currentPlayer} your turn:";
 
             return view;
         }
