@@ -8,5 +8,21 @@ namespace TerminalChess
 {
     internal class Square
     {
+        private int col;
+        private int row;
+        public Piece piece { get; set; }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="row"></param>
+        /// <param name="piece"></param>
+        public  Square(int col, int row, Piece piece)
+        {
+            this.col = col;
+            this.row = row;
+            this.piece = piece;
+        }
     }
 }
