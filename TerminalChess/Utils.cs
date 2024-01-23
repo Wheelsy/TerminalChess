@@ -67,7 +67,7 @@ namespace TerminalChess
         /// Takes and validates a menu input
         /// </summary>
         /// <param name="menuType"></param>
-        public void GetMenuSelection(MENU_TYPES menuType)
+        public string GetMenuSelection(MENU_TYPES menuType)
         {
             string tmp = null;
 
@@ -81,36 +81,9 @@ namespace TerminalChess
                 switch (menuType)
                 {
                     case MENU_TYPES.MAIN:
-                        // START A NEW GAME
-                        if (tmp.Equals("0"))
+                        if(tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2") || tmp.Equals("3"))
                         {
-                            Console.WriteLine("\nEnter player 1 name:");
-                            string p1Name = Console.ReadLine();
-
-                            Console.WriteLine("Enter player 2 name:");
-                            string p2Name = Console.ReadLine();
-
-                            Console.WriteLine();
-
-                            Player p1 = new(p1Name);
-                            Player p2 = new(p2Name);
-                            p1.MyTurn = true;
-
-                            GameEngine ge = new(p1, p2);
-                            string view = ge.View();
-                            Print(view);
-                        }
-                        // LOAD A GAME
-                        else if (tmp.Equals("1"))
-                        {
-                        }
-                        // EXIT THE APPLICATION
-                        else if (tmp.Equals("2"))
-                        {
-                        }
-                        // SHOW THE CREDITS
-                        else if (tmp.Equals("3"))
-                        {
+                            return tmp;
                         }
                         break;
                     case MENU_TYPES.OPTIONS:
@@ -140,6 +113,7 @@ namespace TerminalChess
                         break;
                 }
             }
+            return null;
         }
     }
 }
