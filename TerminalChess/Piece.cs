@@ -20,9 +20,8 @@ namespace TerminalChess
 
         public string name { get; init; }
         public Colour colour { get; }
-
-        private int value;
-        private List<string> possibleMoves;
+        private int value { get; set; }
+        public List<string> possibleMoves { get; }
 
         /// <summary>
         /// Constructor

@@ -204,20 +204,79 @@ namespace TerminalChess
 
         public void Turn(string tmp)
         {
+            bool validCommand = false;
             string turn = tmp.ToUpper();
 
-            // A valid move command
-            string movePattern = "^[A-H][1-8]TO[A-H][1-8]";
-            Regex moveRegex = new Regex(movePattern, RegexOptions.IgnoreCase);
+            while (!validCommand)
+            {
+                // A valid move command
+                string movePattern = "^[A-H][1-8]TO[A-H][1-8]";
+                Regex moveRegex = new Regex(movePattern, RegexOptions.IgnoreCase);
 
-            if (moveRegex.IsMatch(turn))
-            {
-                Console.WriteLine("Move matches regex pattern");
+                if (moveRegex.IsMatch(turn))
+                {
+                    Console.WriteLine("Move matches regex pattern");
+                    validCommand = true;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid command. Try again:");
+                    turn = Console.ReadLine();
+                    turn = turn.ToUpper();
+                }
             }
-            else
+
+            int row = int.Parse(turn[1].ToString());
+            int col = -1;
+
+            switch (turn[0])
             {
-                Console.WriteLine("Move does not match regex pattern");
+                case 'A':
+                    col = 0;
+                    break;
+                case 'B':
+                    col = 1;
+                    break;
+                case 'C':
+                    col = 2;
+                    break;
+                case 'D':
+                    col = 3;
+                    break;
+                case 'E':
+                    col = 4;
+                    break;
+                case 'F':
+                    col = 5;
+                    break;
+                case 'G':
+                    col = 6;
+                    break;
+                case 'H':
+                    col = 7;
+                    break;
             }
+
+            Square curSquare = GetSquareAtPos(row, col);
+        }
+
+        /// <summary>
+        /// Find the square at a given coordinate
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <returns></returns>
+        private Square GetSquareAtPos(int row, int col)
+        {
+            foreach(Square s in board)
+            {
+                if(s.col == col && s.row == row)
+                {
+                    return s;
+                }
+            }
+
+            return null;
         }
     }
 }

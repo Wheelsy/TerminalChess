@@ -8,8 +8,8 @@ namespace TerminalChess
 {
     internal class Square
     {
-        private int col;
-        private int row;
+        public int col { get; init; }
+        public int row { get; init; }
         public Piece piece { get; set; }
 
         /// <summary>
