@@ -5,18 +5,19 @@ using System.Drawing;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace TerminalChess
 {
     internal class GameEngine
     {
-        private Player p1;
-        private Player p2;
         private int cols = 8;
         private int rows = 8;
         private List<Square> board = new();
         private int numPieces;
+        public Player p1 { get; }
+        public Player p2 { get; }
 
         /// <summary>
         /// Constructor for a new game
@@ -166,10 +167,13 @@ namespace TerminalChess
 
             // Get the player whos turn it is
             string currentPlayer = (p1.MyTurn) ? p1.username : p2.username;
+            
+            int yAxis = rows;
 
             // Iterate over every square and print the piece name as well as "|" deviders between squares
             for (int row = 0; row < rows; row++)
             {
+                view += yAxis.ToString();
                 view += "|"; // Start of the row
 
                 for (int col = 0; col < cols; col++)
@@ -182,19 +186,38 @@ namespace TerminalChess
                     }
                     else
                     {
-
                             view += $"{board[index].piece.name}"; // Piece
                             view += "|"; // Square border
                     }
                 }
 
                 view += "\n";
+                yAxis--;
             }
+
+            view += "  A B C D E F G H\n";
 
             view += $"\n{currentPlayer} your turn:";
 
             return view;
         }
 
+        public void Turn(string tmp)
+        {
+            string turn = tmp.ToUpper();
+
+            // A valid move command
+            string movePattern = "^[A-H][1-8]TO[A-H][1-8]";
+            Regex moveRegex = new Regex(movePattern, RegexOptions.IgnoreCase);
+
+            if (moveRegex.IsMatch(turn))
+            {
+                Console.WriteLine("Move matches regex pattern");
+            }
+            else
+            {
+                Console.WriteLine("Move does not match regex pattern");
+            }
+        }
     }
 }

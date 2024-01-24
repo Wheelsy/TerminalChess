@@ -11,12 +11,16 @@ namespace TerminalChess
         public string username { get; set; }
         public bool MyTurn { get; set; }
 
+        public bool Winner { get; set; }
+
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="username"></param>
         public Player(string username) { 
             this.username = username;
+            this.Winner = false;
+            this.MyTurn = false;
         }
     }
 }
