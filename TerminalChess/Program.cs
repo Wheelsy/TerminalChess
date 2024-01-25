@@ -25,7 +25,6 @@ if (menuSelection == "0")
 
     Player p1 = new(p1Name);
     Player p2 = new(p2Name);
-    p1.MyTurn = true;
     bool gameOver = false;
     ge = new(p1, p2);
 
@@ -44,10 +43,9 @@ bool Play(GameEngine ge)
     // Print the board
     string view = ge.View();
     utils.Print(view);
-
-    // Get the move input
-    string turn = Console.ReadLine();
-    ge.Turn(turn);
+    
+    // Call the game engine to execute the turn
+    ge.Turn();
 
     // Check if the game is over
     if (!ge.p1.Winner && !ge.p2.Winner)

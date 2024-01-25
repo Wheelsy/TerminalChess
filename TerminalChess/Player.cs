@@ -9,9 +9,8 @@ namespace TerminalChess
     internal class Player
     {
         public string username { get; set; }
-        public bool MyTurn { get; set; }
-
         public bool Winner { get; set; }
+        public int Score { get; set; }
 
         /// <summary>
         /// Constructor
@@ -20,7 +19,7 @@ namespace TerminalChess
         public Player(string username) { 
             this.username = username;
             this.Winner = false;
-            this.MyTurn = false;
+            this.Score = 0;
         }
     }
 }

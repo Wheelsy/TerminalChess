@@ -18,10 +18,12 @@ namespace TerminalChess
             Black
         }
 
-        public string name { get; init; }
+        public string Name { get; init; }
         public Colour colour { get; }
-        private int value { get; set; }
-        public List<string> possibleMoves { get; }
+        public int Value { get; set; }
+
+        protected Dictionary<int, int> possibleMoves;
+        protected GameEngine ge;
 
         /// <summary>
         /// Constructor
@@ -31,17 +33,26 @@ namespace TerminalChess
         /// <param name="colour"></param>
         public Piece(string name, int value, Colour colour)
         {
-            this.name = name;
-            this.value = value;
+            this.Name = name;
+            this.Value = value;
             this.colour = colour;
+            possibleMoves = new Dictionary<int, int>();
+            ge = new();
+        }
+
+        public Dictionary<int, int> GetPossibleMoves(int row, int col)
+        {
+            possibleMoves.Clear();
+            CalculatePossibleMoves(row, col);
+            return possibleMoves;
         }
 
         /// <summary>
         /// Calculate possible moves of a piece. This is overriden by childeren.
         /// </summary>
-        protected virtual void CalculatePossibleMoves()
+        protected virtual void CalculatePossibleMoves(int row, int col)
         {
-
+          
         }
     }
 }

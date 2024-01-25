@@ -18,6 +18,8 @@ namespace TerminalChess
         private int numPieces;
         public Player p1 { get; }
         public Player p2 { get; }
+        public Player currentPlayer { get; set; }
+        public int TurnNo { get; set; }
 
         /// <summary>
         /// Constructor for a new game
@@ -28,8 +30,16 @@ namespace TerminalChess
             this.p1 = p1;
             this.p2 = p2;
             numPieces = 32;
+            TurnNo = 1;
+            currentPlayer = p1;
 
             AddPiecesToBoard();
+        }
+
+        public GameEngine()
+        {
+            numPieces = 32;
+            TurnNo = 1;
         }
 
         /// <summary>
@@ -38,7 +48,7 @@ namespace TerminalChess
         public void AddPiecesToBoard()
         {
             // Iterate through column
-            for (int k = 0; k < cols; k++)
+            for (int k = cols - 1; k >= 0; k--)
             {
                 // Iterate through rows
                 for (int i = 0; i < rows; i++)
@@ -164,9 +174,6 @@ namespace TerminalChess
         public string View()
         {
             string view = "";
-
-            // Get the player whos turn it is
-            string currentPlayer = (p1.MyTurn) ? p1.username : p2.username;
             
             int yAxis = rows;
 
@@ -186,9 +193,18 @@ namespace TerminalChess
                     }
                     else
                     {
-                            view += $"{board[index].piece.name}"; // Piece
-                            view += "|"; // Square border
+                        view += $"{board[index].piece.Name}"; // Piece
+                        view += "|"; // Square border
                     }
+                }
+
+                if(row == 0)
+                {
+                    view += $" {p2.username} ";
+                }
+                else if(row == 7)
+                {
+                    view += $" {p1.username} ";
                 }
 
                 view += "\n";
@@ -197,67 +213,147 @@ namespace TerminalChess
 
             view += "  A B C D E F G H\n";
 
-            view += $"\n{currentPlayer} your turn:";
+            view += $"\n{currentPlayer.username} your turn:";
 
             return view;
         }
 
-        public void Turn(string tmp)
+        /// <summary>
+        /// Moves a piece based on the inputted move command.
+        /// Checks the move input against a regex pattern.
+        /// </summary>
+        public void Turn()
         {
+            string turn = Console.ReadLine();
+            turn = turn.ToUpper();
+
             bool validCommand = false;
-            string turn = tmp.ToUpper();
 
             while (!validCommand)
             {
-                // A valid move command
+                // Regex pattern to match
                 string movePattern = "^[A-H][1-8]TO[A-H][1-8]";
                 Regex moveRegex = new Regex(movePattern, RegexOptions.IgnoreCase);
 
+                // Move matches the regex
                 if (moveRegex.IsMatch(turn))
                 {
-                    Console.WriteLine("Move matches regex pattern");
-                    validCommand = true;
+                    Console.WriteLine("regex matches");
+                    // Check if the move is legal
+                    validCommand = ValidateTurn(turn);
                 }
-                else
+
+                if (!validCommand)
                 {
                     Console.WriteLine("Invalid command. Try again:");
-                    turn = Console.ReadLine();
-                    turn = turn.ToUpper();
                 }
             }
 
-            int row = int.Parse(turn[1].ToString());
-            int col = -1;
+            currentPlayer = (currentPlayer == p1) ? p2 : p1;
+            return;
+        }
+
+        /// <summary>
+        /// Takes a valid turn string and checks if it is a legal chess move
+        /// </summary>
+        /// <param name="turn"></param>
+        private bool ValidateTurn(string turn)
+        {
+            int moveFromRow = int.Parse(turn[1].ToString()) - 1;
+            int movefromCol = -1;
 
             switch (turn[0])
             {
                 case 'A':
-                    col = 0;
+                    movefromCol = 0;
                     break;
                 case 'B':
-                    col = 1;
+                    movefromCol = 1;
                     break;
                 case 'C':
-                    col = 2;
+                    movefromCol = 2;
                     break;
                 case 'D':
-                    col = 3;
+                    movefromCol = 3;
                     break;
                 case 'E':
-                    col = 4;
+                    movefromCol = 4;
                     break;
                 case 'F':
-                    col = 5;
+                    movefromCol = 5;
                     break;
                 case 'G':
-                    col = 6;
+                    movefromCol = 6;
                     break;
                 case 'H':
-                    col = 7;
+                    movefromCol = 7;
                     break;
             }
 
-            Square curSquare = GetSquareAtPos(row, col);
+            int moveToRow = int.Parse(turn[5].ToString()) - 1;
+            int moveToCol = -1;
+
+            switch (turn[4])
+            {
+                case 'A':
+                    moveToCol = 0;
+                    break;
+                case 'B':
+                    moveToCol = 1;
+                    break;
+                case 'C':
+                    moveToCol = 2;
+                    break;
+                case 'D':
+                    moveToCol = 3;
+                    break;
+                case 'E':
+                    moveToCol = 4;
+                    break;
+                case 'F':
+                    moveToCol = 5;
+                    break;
+                case 'G':
+                    moveToCol = 6;
+                    break;
+                case 'H':
+                    moveToCol = 7;
+                    break;
+            }
+
+            // Check whether the move is a legal chess move
+            Square curSquare = GetSquareAtPos(moveFromRow, movefromCol);
+
+            bool moveIsPossible = false;
+
+            foreach (var entry in curSquare.piece.GetPossibleMoves(moveFromRow, movefromCol))
+            {
+                int validRow = entry.Key;
+                int validCol = entry.Value;
+
+                if (validRow == moveToRow && validCol == moveToCol)
+                {
+                    moveIsPossible = true;
+                }
+            }
+
+            if (!moveIsPossible)
+            {
+                Console.WriteLine("This is not a valid chess move");
+                return false;
+            }
+
+            Square newSquare = GetSquareAtPos(moveToRow, moveToCol);
+
+            if(newSquare.piece != null)
+            {
+                currentPlayer.Score += newSquare.piece.Value;
+            }
+
+            newSquare.piece = curSquare.piece;
+            curSquare.piece = null;
+
+            return true;
         }
 
         /// <summary>
@@ -266,7 +362,7 @@ namespace TerminalChess
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <returns></returns>
-        private Square GetSquareAtPos(int row, int col)
+        public Square GetSquareAtPos(int row, int col)
         {
             foreach(Square s in board)
             {

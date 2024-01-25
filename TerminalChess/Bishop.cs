@@ -17,15 +17,14 @@ namespace TerminalChess
         public Bishop(Colour colour) : base("", 3, colour)
         {
             // Set append the name string with the appropraite colour code
-            name += (colour == Piece.Colour.Black) ? "B".Pastel(Color.Chocolate) : "B".Pastel(Color.SandyBrown);
+            Name += (colour == Piece.Colour.Black) ? "B".Pastel(Color.Chocolate) : "B".Pastel(Color.SandyBrown);
         }
 
         /// <summary>
         /// Overriden method to caluculate the legal moves for a Bishop
         /// </summary>
-        protected override void CalculatePossibleMoves()
+        protected override void CalculatePossibleMoves(int row, int col)
         {
-            base.CalculatePossibleMoves();
         }
     }
 }

@@ -17,15 +17,14 @@ namespace TerminalChess
         public Knight(Colour colour) : base("", 3, colour)
         {
             // Set append the name string with the appropraite colour code
-            name += (colour == Piece.Colour.Black) ? "N".Pastel(Color.Chocolate) : "N".Pastel(Color.SandyBrown);
+            Name += (colour == Piece.Colour.Black) ? "N".Pastel(Color.Chocolate) : "N".Pastel(Color.SandyBrown);
         }
 
         /// <summary>
         /// Overriden method to caluculate the legal moves for a Knight
         /// </summary>
-        protected override void CalculatePossibleMoves()
+        protected override void CalculatePossibleMoves(int row, int col)
         {
-            base.CalculatePossibleMoves();
         }
     }
 }
