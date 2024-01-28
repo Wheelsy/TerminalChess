@@ -24,6 +24,7 @@ namespace TerminalChess
 
         protected Dictionary<int, int> possibleMoves;
         protected GameEngine ge;
+        protected int modifier;
 
         /// <summary>
         /// Constructor
@@ -52,7 +53,7 @@ namespace TerminalChess
         /// </summary>
         protected virtual void CalculatePossibleMoves(int row, int col)
         {
-          
+            modifier = (colour == Colour.White) ? 1 : -1;
         }
     }
 }

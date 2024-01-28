@@ -259,6 +259,7 @@ namespace TerminalChess
         /// <param name="turn"></param>
         private bool ValidateTurn(string turn)
         {
+            // Extract the origin square coordinates from the move command
             int moveFromRow = int.Parse(turn[1].ToString()) - 1;
             int movefromCol = -1;
 
@@ -290,6 +291,7 @@ namespace TerminalChess
                     break;
             }
 
+            // Extract the destination square coordinates from the move command
             int moveToRow = int.Parse(turn[5].ToString()) - 1;
             int moveToCol = -1;
 
@@ -321,9 +323,25 @@ namespace TerminalChess
                     break;
             }
 
-            // Check whether the move is a legal chess move
+            // Get the starting square
             Square curSquare = GetSquareAtPos(moveFromRow, movefromCol);
 
+            // Check the player has selected the correct colour piece
+            if(currentPlayer == p1)
+            {
+                if(curSquare.piece.colour != Piece.Colour.White) {
+                    return false;
+                }
+            }
+            else
+            {
+                if (curSquare.piece.colour != Piece.Colour.Black)
+                {
+                    return false;
+                }
+            }
+
+            // Loop through all possible moves and see if the users input is among them
             bool moveIsPossible = false;
 
             foreach (var entry in curSquare.piece.GetPossibleMoves(moveFromRow, movefromCol))
@@ -339,18 +357,22 @@ namespace TerminalChess
 
             if (!moveIsPossible)
             {
-                Console.WriteLine("This is not a valid chess move");
                 return false;
             }
 
+            // Get the destination square
             Square newSquare = GetSquareAtPos(moveToRow, moveToCol);
 
+            // If a piece was captured update the players score
             if(newSquare.piece != null)
             {
                 currentPlayer.Score += newSquare.piece.Value;
             }
 
+            // Update the moved pieces position
             newSquare.piece = curSquare.piece;
+
+            // Remove the moved piece from the origin square
             curSquare.piece = null;
 
             return true;

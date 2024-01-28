@@ -25,7 +25,7 @@ namespace TerminalChess
         /// </summary>
         protected override void CalculatePossibleMoves(int row, int col)
         {
-            int modifier = (colour == Colour.White) ? 1 : -1;
+            base.CalculatePossibleMoves(row, col);
 
             if (ge.TurnNo == 1)
             {
