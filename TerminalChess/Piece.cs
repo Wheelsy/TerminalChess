@@ -22,8 +22,7 @@ namespace TerminalChess
         public Colour colour { get; }
         public int Value { get; set; }
 
-        protected Dictionary<int, int> possibleMoves;
-        protected GameEngine ge;
+        protected List<(int, int)> possibleMoves;
         protected int modifier;
 
         /// <summary>
@@ -37,23 +36,25 @@ namespace TerminalChess
             this.Name = name;
             this.Value = value;
             this.colour = colour;
-            possibleMoves = new Dictionary<int, int>();
-            ge = new();
+            possibleMoves = new();
         }
 
-        public Dictionary<int, int> GetPossibleMoves(int row, int col)
+        public List<(int, int)> GetPossibleMoves(int row, int col, GameEngine ge)
         {
-            possibleMoves.Clear();
-            CalculatePossibleMoves(row, col);
+            if (possibleMoves.Count > 0)
+            {
+                possibleMoves.Clear();
+            }
+            CalculatePossibleMoves(row, col, ge);
             return possibleMoves;
         }
 
         /// <summary>
         /// Calculate possible moves of a piece. This is overriden by childeren.
         /// </summary>
-        protected virtual void CalculatePossibleMoves(int row, int col)
+        protected virtual void CalculatePossibleMoves(int row, int col, GameEngine ge)
         {
-            modifier = (colour == Colour.White) ? 1 : -1;
+            this.modifier = (colour == Colour.White) ? 1 : -1;
         }
     }
 }

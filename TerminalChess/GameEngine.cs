@@ -26,7 +26,8 @@ namespace TerminalChess
         /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        public GameEngine(Player p1, Player p2) { 
+        public GameEngine(Player p1, Player p2)
+        {
             this.p1 = p1;
             this.p2 = p2;
             numPieces = 32;
@@ -57,7 +58,7 @@ namespace TerminalChess
                     if (k == 0)
                     {
                         // Rook rows
-                        if(i == 0 || i == 7)
+                        if (i == 0 || i == 7)
                         {
                             Rook rook = new(Piece.Colour.White);
                             Square sqr = new(i, k, rook);
@@ -65,7 +66,7 @@ namespace TerminalChess
                             board.Add(sqr);
                         }
                         // Knight rows
-                        else if(i == 1 || i == 6)
+                        else if (i == 1 || i == 6)
                         {
                             Knight knight = new(Piece.Colour.White);
                             Square sqr = new(i, k, knight);
@@ -73,7 +74,7 @@ namespace TerminalChess
                             board.Add(sqr);
                         }
                         // Bishop rows
-                        else if(i == 2 || i == 5)
+                        else if (i == 2 || i == 5)
                         {
                             Bishop bishop = new(Piece.Colour.White);
                             Square sqr = new(i, k, bishop);
@@ -174,7 +175,7 @@ namespace TerminalChess
         public string View()
         {
             string view = "";
-            
+
             int yAxis = rows;
 
             // Iterate over every square and print the piece name as well as "|" deviders between squares
@@ -198,11 +199,11 @@ namespace TerminalChess
                     }
                 }
 
-                if(row == 0)
+                if (row == 0)
                 {
                     view += $" {p2.username} ";
                 }
-                else if(row == 7)
+                else if (row == 7)
                 {
                     view += $" {p1.username} ";
                 }
@@ -224,13 +225,14 @@ namespace TerminalChess
         /// </summary>
         public void Turn()
         {
-            string turn = Console.ReadLine();
-            turn = turn.ToUpper();
-
             bool validCommand = false;
 
             while (!validCommand)
             {
+                // Take the turn input
+                string turn = Console.ReadLine();
+                turn = turn.ToUpper();
+
                 // Regex pattern to match
                 string movePattern = "^[A-H][1-8]TO[A-H][1-8]";
                 Regex moveRegex = new Regex(movePattern, RegexOptions.IgnoreCase);
@@ -238,7 +240,6 @@ namespace TerminalChess
                 // Move matches the regex
                 if (moveRegex.IsMatch(turn))
                 {
-                    Console.WriteLine("regex matches");
                     // Check if the move is legal
                     validCommand = ValidateTurn(turn);
                 }
@@ -327,9 +328,11 @@ namespace TerminalChess
             Square curSquare = GetSquareAtPos(moveFromRow, movefromCol);
 
             // Check the player has selected the correct colour piece
-            if(currentPlayer == p1)
+            if (currentPlayer == p1)
             {
-                if(curSquare.piece.colour != Piece.Colour.White) {
+                if (curSquare.piece.colour != Piece.Colour.White)
+                {
+                    Console.WriteLine("That is your opponents piece!");
                     return false;
                 }
             }
@@ -337,6 +340,7 @@ namespace TerminalChess
             {
                 if (curSquare.piece.colour != Piece.Colour.Black)
                 {
+                    Console.WriteLine("That is your opponents piece!");
                     return false;
                 }
             }
@@ -344,10 +348,10 @@ namespace TerminalChess
             // Loop through all possible moves and see if the users input is among them
             bool moveIsPossible = false;
 
-            foreach (var entry in curSquare.piece.GetPossibleMoves(moveFromRow, movefromCol))
+            foreach (var entry in curSquare.piece.GetPossibleMoves(moveFromRow, movefromCol, this))
             {
-                int validRow = entry.Key;
-                int validCol = entry.Value;
+                int validRow = entry.Item1;
+                int validCol = entry.Item2;
 
                 if (validRow == moveToRow && validCol == moveToCol)
                 {
@@ -357,6 +361,7 @@ namespace TerminalChess
 
             if (!moveIsPossible)
             {
+                Console.WriteLine("Move not found in possible moves");
                 return false;
             }
 
@@ -364,7 +369,7 @@ namespace TerminalChess
             Square newSquare = GetSquareAtPos(moveToRow, moveToCol);
 
             // If a piece was captured update the players score
-            if(newSquare.piece != null)
+            if (newSquare.piece != null)
             {
                 currentPlayer.Score += newSquare.piece.Value;
             }
@@ -386,9 +391,9 @@ namespace TerminalChess
         /// <returns></returns>
         public Square GetSquareAtPos(int row, int col)
         {
-            foreach(Square s in board)
+            foreach (Square s in board)
             {
-                if(s.col == col && s.row == row)
+                if (s.col == col && s.row == row)
                 {
                     return s;
                 }

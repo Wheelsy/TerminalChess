@@ -23,38 +23,38 @@ namespace TerminalChess
         /// <summary>
         /// Overriden method to caluculate the legal moves for a Pawn
         /// </summary>
-        protected override void CalculatePossibleMoves(int row, int col)
+        protected override void CalculatePossibleMoves(int row, int col, GameEngine ge)
         {
-            base.CalculatePossibleMoves(row, col);
+            base.CalculatePossibleMoves(row, col, ge);
 
             if (ge.TurnNo == 1)
             {
-                possibleMoves.Add(row + 1 * modifier, col);
-                possibleMoves.Add(row + 2 * modifier, col);
+                possibleMoves.Add((row + (1 * modifier), col));
+                possibleMoves.Add((row + (2 * modifier), col));
                 return;
-            }
+            }       
 
             // Check if the square in fron is occupied
-            Square infront = ge.GetSquareAtPos(row + 1 * modifier, col);
+            Square infront = ge.GetSquareAtPos(row + (1 * modifier), col);
 
             if(infront.piece == null)
             {
-                possibleMoves.Add(infront.row, infront.col);
+                possibleMoves.Add((infront.row, infront.col));
             }
 
             // Check diagonals
-            Square diagonal1 = ge.GetSquareAtPos(row + 1 * modifier, col + 1 * modifier);
+            Square diagonal1 = ge.GetSquareAtPos(row + (1 * modifier), col + (1 * modifier));
 
             if (diagonal1.piece != null)
             {
-                possibleMoves.Add(diagonal1.row, diagonal1.col);
+                possibleMoves.Add((diagonal1.row, diagonal1.col));
             }
 
-            Square diagonal2 = ge.GetSquareAtPos(row + 1 * modifier, col - 1 * modifier);
+            Square diagonal2 = ge.GetSquareAtPos(row + (1 * modifier), col - (1 * modifier));
 
             if (diagonal2.piece != null)
             {
-                possibleMoves.Add(diagonal2.row, diagonal2.col);
+                possibleMoves.Add((diagonal2.row, diagonal2.col));
             }
         }
     }

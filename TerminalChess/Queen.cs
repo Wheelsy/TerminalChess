@@ -23,8 +23,9 @@ namespace TerminalChess
         /// <summary>
         /// Overriden method to caluculate the legal moves for a Queen
         /// </summary>
-        protected override void CalculatePossibleMoves(int row, int col)
+        protected override void CalculatePossibleMoves(int row, int col, GameEngine ge)
         {
+            base.CalculatePossibleMoves(row, col, ge);
         }
     }
 }
