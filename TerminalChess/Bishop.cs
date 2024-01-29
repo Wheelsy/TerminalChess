@@ -33,6 +33,14 @@ namespace TerminalChess
             CheckDiagonalMoves(row, col, -1, 1, ge); // Lower right diagonal
         }
 
+        /// <summary>
+        /// Loop through diagonals for possible squares to move to.
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <param name="rowModifier"></param>
+        /// <param name="colModifier"></param>
+        /// <param name="ge"></param>
         private void CheckDiagonalMoves(int row, int col, int rowModifier, int colModifier, GameEngine ge)
         {
             for (int i = 1; i < 8; i++)
