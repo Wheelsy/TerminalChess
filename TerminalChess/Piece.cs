@@ -23,7 +23,7 @@ namespace TerminalChess
         public int Value { get; set; }
 
         protected List<(int, int)> possibleMoves;
-        protected int modifier;
+        protected int colourModifier;
 
         /// <summary>
         /// Constructor
@@ -54,7 +54,7 @@ namespace TerminalChess
         /// </summary>
         protected virtual void CalculatePossibleMoves(int row, int col, GameEngine ge)
         {
-            this.modifier = (colour == Colour.White) ? 1 : -1;
+            this.colourModifier = (colour == Colour.White) ? 1 : -1;
         }
     }
 }

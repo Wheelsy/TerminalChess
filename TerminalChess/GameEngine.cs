@@ -235,7 +235,7 @@ namespace TerminalChess
 
                 // Regex pattern to match
                 string movePattern = "^[A-H][1-8]TO[A-H][1-8]";
-                Regex moveRegex = new Regex(movePattern, RegexOptions.IgnoreCase);
+                Regex moveRegex = new(movePattern, RegexOptions.IgnoreCase);
 
                 // Move matches the regex
                 if (moveRegex.IsMatch(turn))

@@ -29,13 +29,13 @@ namespace TerminalChess
 
             if (ge.TurnNo == 1)
             {
-                possibleMoves.Add((row + (1 * modifier), col));
-                possibleMoves.Add((row + (2 * modifier), col));
+                possibleMoves.Add((row + (1 * colourModifier), col));
+                possibleMoves.Add((row + (2 * colourModifier), col));
                 return;
             }       
 
             // Check if the square in fron is occupied
-            Square infront = ge.GetSquareAtPos(row + (1 * modifier), col);
+            Square infront = ge.GetSquareAtPos(row + (1 * colourModifier), col);
 
             if(infront.piece == null)
             {
@@ -43,14 +43,14 @@ namespace TerminalChess
             }
 
             // Check diagonals
-            Square diagonal1 = ge.GetSquareAtPos(row + (1 * modifier), col + (1 * modifier));
+            Square diagonal1 = ge.GetSquareAtPos(row + (1 * colourModifier), col + (1 * colourModifier));
 
             if (diagonal1.piece != null)
             {
                 possibleMoves.Add((diagonal1.row, diagonal1.col));
             }
 
-            Square diagonal2 = ge.GetSquareAtPos(row + (1 * modifier), col - (1 * modifier));
+            Square diagonal2 = ge.GetSquareAtPos(row + (1 * colourModifier), col - (1 * colourModifier));
 
             if (diagonal2.piece != null)
             {

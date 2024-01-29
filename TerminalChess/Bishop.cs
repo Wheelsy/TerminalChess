@@ -26,6 +26,31 @@ namespace TerminalChess
         protected override void CalculatePossibleMoves(int row, int col, GameEngine ge)
         {
             base.CalculatePossibleMoves(row, col, ge);
+
+            CheckDiagonalMoves(row, col, 1, 1, ge); // Upper right diagonal
+            CheckDiagonalMoves(row, col, 1, -1, ge); // Upper left diagonal
+            CheckDiagonalMoves(row, col, -1, -1, ge); // Lower left diagonal
+            CheckDiagonalMoves(row, col, -1, 1, ge); // Lower right diagonal
+        }
+
+        private void CheckDiagonalMoves(int row, int col, int rowModifier, int colModifier, GameEngine ge)
+        {
+            for (int i = 1; i < 8; i++)
+            {
+                Square sqr = ge.GetSquareAtPos(row + i * rowModifier, col + i * colModifier);
+
+                if (sqr == null)
+                {
+                    break;
+                }
+
+                possibleMoves.Add((sqr.row, sqr.col));
+
+                if(sqr.piece != null)
+                {
+                    break;
+                }
+            }
         }
     }
 }

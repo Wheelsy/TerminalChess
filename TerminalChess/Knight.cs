@@ -27,48 +27,64 @@ namespace TerminalChess
         {
            base.CalculatePossibleMoves(row, col, ge);
 
-            // Check if the square in the front-left is within the board boundaries (L shape move)
-            Square frontLeft = ge.GetSquareAtPos(row + (2 * modifier), col - (1 * modifier));
+            // Check if the square 2 up and 1 left is within the board boundaries (L shape move)
+            Square frontLeft = ge.GetSquareAtPos(row + (2 * colourModifier), col - (1 * colourModifier));
 
             if (frontLeft != null)
             {
                 possibleMoves.Add((frontLeft.row, frontLeft.col));
             }
 
-            // Check if the square in the front-right is within the board boundaries (L shape move)
-            Square frontRight = ge.GetSquareAtPos(row + (2 * modifier), col + (1 * modifier));
+            // Check if the square 2 up and 1 right is within the board boundaries (L shape move)
+            Square frontRight = ge.GetSquareAtPos(row + (2 * colourModifier), col + (1 * colourModifier));
 
             if (frontRight != null)
             {
                 possibleMoves.Add((frontRight.row, frontRight.col));
             }
 
-            // Check if the square to the left is within the board boundaries (L shape move)
-            Square left = ge.GetSquareAtPos(row + (1 * modifier), col - (2 * modifier));
+            // Check if the square 1 up and 2 left is within the board boundaries (L shape move)
+            Square left1 = ge.GetSquareAtPos(row + (1 * colourModifier), col - (2 * colourModifier));
 
-            if (left != null)
+            if (left1 != null)
             {
-                possibleMoves.Add((left.row, left.col));
+                possibleMoves.Add((left1.row, left1.col));
             }
 
-            // Check if the square to the right is within the board boundaries (L shape move)
-            Square right = ge.GetSquareAtPos(row + (1 * modifier), col + 2 * modifier);
+            // Check if the square 1 down and 2 left is within the board boundaries (L shape move)
+            Square left2 = ge.GetSquareAtPos(row - (1 * colourModifier), col - (2 * colourModifier));
 
-            if (right != null)
+            if (left2 != null)
             {
-                possibleMoves.Add((right.row, right.col));
+                possibleMoves.Add((left2.row, left2.col));
             }
 
-            // Check if the square in the back-left is within the board boundaries (L shape move)
-            Square backLeft = ge.GetSquareAtPos(row - (2 * modifier), col - (1 * modifier));
+            // Check if the square 1 up and 2 right is within the board boundaries (L shape move)
+            Square right1 = ge.GetSquareAtPos(row + (1 * colourModifier), col + 2 * colourModifier);
+
+            if (right1 != null)
+            {
+                possibleMoves.Add((right1.row, right1.col));
+            }
+
+            // Check if the square 1 down and 2 right is within the board boundaries (L shape move)
+            Square right2 = ge.GetSquareAtPos(row - (1 * colourModifier), col + 2 * colourModifier);
+
+            if (right2 != null)
+            {
+                possibleMoves.Add((right2.row, right2.col));
+            }
+
+            // Check if the square 2 down and 1 left is within the board boundaries (L shape move)
+            Square backLeft = ge.GetSquareAtPos(row - (2 * colourModifier), col - (1 * colourModifier));
 
             if (backLeft != null)
             {
                 possibleMoves.Add((backLeft.row, backLeft.col));
             }
 
-            // Check if the square in the back-right is within the board boundaries (L shape move)
-            Square backRight = ge.GetSquareAtPos(row - (2 * modifier), col + (1 * modifier));
+            // Check if the square 2 down and 1 right is within the board boundaries (L shape move)
+            Square backRight = ge.GetSquareAtPos(row - (2 * colourModifier), col + (1 * colourModifier));
 
             if (backRight != null)
             {
