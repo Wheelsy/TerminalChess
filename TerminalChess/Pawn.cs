@@ -29,32 +29,50 @@ namespace TerminalChess
 
             if (ge.TurnNo == 1)
             {
-                possibleMoves.Add((row + (1 * colourModifier), col));
+                possibleMoves.Add((row + colourModifier, col));
                 possibleMoves.Add((row + (2 * colourModifier), col));
                 return;
             }       
 
-            // Check if the square in fron is occupied
-            Square infront = ge.GetSquareAtPos(row + (1 * colourModifier), col);
+            // Check if the square in front is occupied
+            Square infront = ge.GetSquareAtPos(row + colourModifier, col);
 
-            if(infront.piece == null)
+            if(infront == null)
             {
-                possibleMoves.Add((infront.row, infront.col));
+                if (infront.piece != null)
+                {
+                    if (infront.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((infront.row, infront.col));
+                    }
+                }
             }
 
             // Check diagonals
-            Square diagonal1 = ge.GetSquareAtPos(row + (1 * colourModifier), col + (1 * colourModifier));
+            Square diagonal1 = ge.GetSquareAtPos(row + colourModifier, col + colourModifier);
 
-            if (diagonal1.piece != null)
+            if (diagonal1 != null)
             {
-                possibleMoves.Add((diagonal1.row, diagonal1.col));
+                if (diagonal1.piece != null)
+                {
+                    if (diagonal1.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((diagonal1.row, diagonal1.col));
+                    }
+                }
             }
 
-            Square diagonal2 = ge.GetSquareAtPos(row + (1 * colourModifier), col - (1 * colourModifier));
+            Square diagonal2 = ge.GetSquareAtPos(row + colourModifier, col - colourModifier);
 
-            if (diagonal2.piece != null)
+            if (diagonal2 != null)
             {
-                possibleMoves.Add((diagonal2.row, diagonal2.col));
+                if (diagonal2.piece != null)
+                {
+                    if (diagonal2.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((diagonal2.row, diagonal2.col));
+                    }
+                }
             }
         }
     }

@@ -52,12 +52,19 @@ namespace TerminalChess
                     break;
                 }
 
-                possibleMoves.Add((sqr.row, sqr.col));
-
-                if(sqr.piece != null)
+                if (sqr.piece != null)
                 {
-                    break;
+                    if (sqr.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((sqr.row, sqr.col));
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
+                possibleMoves.Add((sqr.row, sqr.col));
             }
         }
     }

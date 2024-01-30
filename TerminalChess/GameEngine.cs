@@ -250,6 +250,11 @@ namespace TerminalChess
                 }
             }
 
+            if(currentPlayer == p2)
+            {
+                TurnNo++;
+            }
+
             currentPlayer = (currentPlayer == p1) ? p2 : p1;
             return;
         }

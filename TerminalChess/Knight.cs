@@ -32,7 +32,17 @@ namespace TerminalChess
 
             if (frontLeft != null)
             {
-                possibleMoves.Add((frontLeft.row, frontLeft.col));
+                if (frontLeft.piece != null)
+                {
+                    if (frontLeft.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((frontLeft.row, frontLeft.col));
+                    }
+                }
+                else
+                {
+                        possibleMoves.Add((frontLeft.row, frontLeft.col));
+                }
             }
 
             // Check if the square 2 up and 1 right is within the board boundaries (L shape move)
@@ -40,7 +50,17 @@ namespace TerminalChess
 
             if (frontRight != null)
             {
-                possibleMoves.Add((frontRight.row, frontRight.col));
+                if (frontRight.piece != null)
+                {
+                    if (frontRight.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((frontRight.row, frontRight.col));
+                    }
+                }
+                else
+                {
+                    possibleMoves.Add((frontRight.row, frontRight.col));
+                }
             }
 
             // Check if the square 1 up and 2 left is within the board boundaries (L shape move)
@@ -48,7 +68,17 @@ namespace TerminalChess
 
             if (left1 != null)
             {
-                possibleMoves.Add((left1.row, left1.col));
+                if (left1.piece != null)
+                {
+                    if (left1.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((left1.row, left1.col));
+                    }
+                }
+                else
+                {
+                    possibleMoves.Add((left1.row, left1.col));
+                }
             }
 
             // Check if the square 1 down and 2 left is within the board boundaries (L shape move)
@@ -56,7 +86,17 @@ namespace TerminalChess
 
             if (left2 != null)
             {
-                possibleMoves.Add((left2.row, left2.col));
+                if (left2.piece != null)
+                {
+                    if (left2.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((left2.row, left2.col));
+                    }
+                }
+                else
+                {
+                    possibleMoves.Add((left2.row, left2.col));
+                }
             }
 
             // Check if the square 1 up and 2 right is within the board boundaries (L shape move)
@@ -64,7 +104,17 @@ namespace TerminalChess
 
             if (right1 != null)
             {
-                possibleMoves.Add((right1.row, right1.col));
+                if (right1.piece != null)
+                {
+                    if (right1.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((right1.row, right1.col));
+                    }
+                }
+                else
+                {
+                    possibleMoves.Add((right1.row, right1.col));
+                }
             }
 
             // Check if the square 1 down and 2 right is within the board boundaries (L shape move)
@@ -72,7 +122,17 @@ namespace TerminalChess
 
             if (right2 != null)
             {
-                possibleMoves.Add((right2.row, right2.col));
+                if (right2.piece != null)
+                {
+                    if (right2.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((right2.row, right2.col));
+                    }
+                }
+                else
+                {
+                    possibleMoves.Add((right2.row, right2.col));
+                }
             }
 
             // Check if the square 2 down and 1 left is within the board boundaries (L shape move)
@@ -80,7 +140,17 @@ namespace TerminalChess
 
             if (backLeft != null)
             {
-                possibleMoves.Add((backLeft.row, backLeft.col));
+                if (backLeft.piece != null)
+                {
+                    if (backLeft.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((backLeft.row, backLeft.col));
+                    }
+                }
+                else
+                {
+                    possibleMoves.Add((backLeft.row, backLeft.col));
+                }
             }
 
             // Check if the square 2 down and 1 right is within the board boundaries (L shape move)
@@ -88,7 +158,17 @@ namespace TerminalChess
 
             if (backRight != null)
             {
-                possibleMoves.Add((backRight.row, backRight.col));
+                if (backRight.piece != null)
+                {
+                    if (backRight.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((backRight.row, backRight.col));
+                    }
+                }
+                else
+                {
+                    possibleMoves.Add((backRight.row, backRight.col));
+                }
             }
         }
     }
