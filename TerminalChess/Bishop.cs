@@ -17,15 +17,55 @@ namespace TerminalChess
         public Bishop(Colour colour) : base("", 3, colour)
         {
             // Set append the name string with the appropraite colour code
-            name += (colour == Piece.Colour.Black) ? "B".Pastel(Color.Chocolate) : "B".Pastel(Color.SandyBrown);
+            Name += (colour == Piece.Colour.Black) ? "B".Pastel(Color.Chocolate) : "B".Pastel(Color.SandyBrown);
         }
 
         /// <summary>
         /// Overriden method to caluculate the legal moves for a Bishop
         /// </summary>
-        protected override void CalculatePossibleMoves()
+        protected override void CalculatePossibleMoves(int row, int col, GameEngine ge)
         {
-            base.CalculatePossibleMoves();
+            base.CalculatePossibleMoves(row, col, ge);
+
+            CheckDiagonalMoves(row, col, 1, 1, ge); // Upper right diagonal
+            CheckDiagonalMoves(row, col, 1, -1, ge); // Upper left diagonal
+            CheckDiagonalMoves(row, col, -1, -1, ge); // Lower left diagonal
+            CheckDiagonalMoves(row, col, -1, 1, ge); // Lower right diagonal
+        }
+
+        /// <summary>
+        /// Loop through diagonals for possible squares to move to.
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <param name="rowModifier"></param>
+        /// <param name="colModifier"></param>
+        /// <param name="ge"></param>
+        private void CheckDiagonalMoves(int row, int col, int rowModifier, int colModifier, GameEngine ge)
+        {
+            for (int i = 1; i < 8; i++)
+            {
+                Square sqr = ge.GetSquareAtPos(row + i * rowModifier, col + i * colModifier);
+
+                if (sqr == null)
+                {
+                    break;
+                }
+
+                if (sqr.piece != null)
+                {
+                    if (sqr.piece.colour != this.colour)
+                    {
+                        possibleMoves.Add((sqr.row, sqr.col));
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                possibleMoves.Add((sqr.row, sqr.col));
+            }
         }
     }
 }
