@@ -393,6 +393,25 @@ namespace TerminalChess
             // Update the moved pieces position
             newSquare.piece = curSquare.piece;
 
+            // Find out if the opposition player has been places in check
+            foreach (var entry in newSquare.piece.GetPossibleMoves(newSquare.row, newSquare.col, this))
+            {
+                int validRow = entry.Item1;
+                int validCol = entry.Item2;
+
+                if(GetSquareAtPos(validRow, validCol).piece.Name.Equals("K"))
+                {
+                    if(currentPlayer == p1)
+                    {
+                        p2.InCheck = true;
+                    }
+                    else
+                    {
+                        p1.InCheck = true;
+                    }
+                }
+            }
+
             // Remove the moved piece from the origin square
             curSquare.piece = null;
 
