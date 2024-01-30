@@ -11,6 +11,7 @@ namespace TerminalChess
         public string username { get; set; }
         public bool Winner { get; set; }
         public int Score { get; set; }
+        public List<string> capturedPieces;
 
         /// <summary>
         /// Constructor
@@ -20,6 +21,7 @@ namespace TerminalChess
             this.username = username;
             this.Winner = false;
             this.Score = 0;
+            capturedPieces = new();
         }
     }
 }

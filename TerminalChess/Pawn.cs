@@ -27,24 +27,28 @@ namespace TerminalChess
         {
             base.CalculatePossibleMoves(row, col, ge);
 
-            if (ge.TurnNo == 1)
+            if (row == 1 || row == 6)
             {
-                possibleMoves.Add((row + colourModifier, col));
-                possibleMoves.Add((row + (2 * colourModifier), col));
-                return;
+                // Check if the square 2 in front is occupied
+                Square doubleMove = ge.GetSquareAtPos(row + (2 * colourModifier), col);
+
+                if (doubleMove != null)
+                {
+                    if (doubleMove.piece == null)
+                    {
+                        possibleMoves.Add((doubleMove.row, doubleMove.col));
+                    }
+                }
             }       
 
             // Check if the square in front is occupied
             Square infront = ge.GetSquareAtPos(row + colourModifier, col);
 
-            if(infront == null)
+            if(infront != null)
             {
-                if (infront.piece != null)
+                if (infront.piece == null)
                 {
-                    if (infront.piece.colour != this.colour)
-                    {
-                        possibleMoves.Add((infront.row, infront.col));
-                    }
+                    possibleMoves.Add((infront.row, infront.col));
                 }
             }
 

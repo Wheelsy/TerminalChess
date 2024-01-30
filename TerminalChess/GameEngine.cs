@@ -199,13 +199,23 @@ namespace TerminalChess
                     }
                 }
 
+                string tmp = "";
                 if (row == 0)
                 {
-                    view += $" {p2.username} ";
+                    foreach(string piece in p2.capturedPieces)
+                    {
+                        tmp += $"{piece} ";
+                    }
+
+                    view += $" {p2.username}: {tmp}";
                 }
                 else if (row == 7)
                 {
-                    view += $" {p1.username} ";
+                    foreach (string piece in p1.capturedPieces)
+                    {
+                        tmp += $"{piece} ";
+                    }
+                    view += $" {p1.username}: {tmp}";
                 }
 
                 view += "\n";
@@ -376,6 +386,7 @@ namespace TerminalChess
             // If a piece was captured update the players score
             if (newSquare.piece != null)
             {
+                currentPlayer.capturedPieces.Add(newSquare.piece.Name);
                 currentPlayer.Score += newSquare.piece.Value;
             }
 
