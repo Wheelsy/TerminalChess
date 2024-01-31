@@ -7,6 +7,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static TerminalChess.Piece;
 
 namespace TerminalChess
 {
@@ -225,6 +226,10 @@ namespace TerminalChess
             view += "  A B C D E F G H\n";
 
             view += $"\n{currentPlayer.username} your turn:";
+            if (IsPlayerInCheck(currentPlayer))
+            {
+                view += "(You are in check)";
+            }
 
             return view;
         }
@@ -342,6 +347,11 @@ namespace TerminalChess
             // Get the starting square
             Square curSquare = GetSquareAtPos(moveFromRow, movefromCol);
 
+            if(curSquare.piece == null){
+                Console.WriteLine("There is no piece in the selected square.");
+                return false;
+            }
+
             // Check the player has selected the correct colour piece
             if (currentPlayer == p1)
             {
@@ -383,9 +393,14 @@ namespace TerminalChess
             // Get the destination square
             Square newSquare = GetSquareAtPos(moveToRow, moveToCol);
 
+            Square backupCurSquare = new(curSquare.row, curSquare.col, curSquare.piece);
+            Square backupNewSquare = new(newSquare.row, newSquare.col, newSquare.piece);
+            bool pieceCaptured = false;
+
             // If a piece was captured update the players score
             if (newSquare.piece != null)
             {
+                pieceCaptured = true;
                 currentPlayer.capturedPieces.Add(newSquare.piece.Name);
                 currentPlayer.Score += newSquare.piece.Value;
             }
@@ -393,27 +408,25 @@ namespace TerminalChess
             // Update the moved pieces position
             newSquare.piece = curSquare.piece;
 
-            // Find out if the opposition player has been places in check
-            foreach (var entry in newSquare.piece.GetPossibleMoves(newSquare.row, newSquare.col, this))
-            {
-                int validRow = entry.Item1;
-                int validCol = entry.Item2;
-
-                if(GetSquareAtPos(validRow, validCol).piece.Name.Equals("K"))
-                {
-                    if(currentPlayer == p1)
-                    {
-                        p2.InCheck = true;
-                    }
-                    else
-                    {
-                        p1.InCheck = true;
-                    }
-                }
-            }
-
             // Remove the moved piece from the origin square
             curSquare.piece = null;
+
+            // See if the current player has ended their turn in check
+            if (IsPlayerInCheck(currentPlayer))
+            {
+                // Reset the board state
+                newSquare.piece = backupNewSquare.piece;
+                curSquare.piece = backupCurSquare.piece;
+
+                if (pieceCaptured)
+                {
+                    currentPlayer.capturedPieces.RemoveAt(currentPlayer.capturedPieces.Count());
+                    currentPlayer.Score -= backupNewSquare.piece.Value;
+                }
+
+                Console.WriteLine("You cannot end your turn in check");
+                return false;
+            }
 
             return true;
         }
@@ -435,6 +448,37 @@ namespace TerminalChess
             }
 
             return null;
+        }
+
+        bool IsPlayerInCheck(Player p)
+        {
+            var colour = (p == p1) ? Piece.Colour.White : Piece.Colour.Black;
+
+            foreach (Square s in board)
+                {
+                    if (s.piece != null)
+                    {
+                        if (s.piece.colour != colour)
+                        {
+                            foreach (var entry in s.piece.GetPossibleMoves(s.row, s.col, this))
+                            {
+                                int validRow = entry.Item1;
+                                int validCol = entry.Item2;
+
+                                Square tmpSquare = GetSquareAtPos(validRow, validCol);
+
+                                if (tmpSquare.piece != null)
+                                {
+                                    if (tmpSquare.piece.Name.Contains("K"))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            return false;
         }
     }
 }
