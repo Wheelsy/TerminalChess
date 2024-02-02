@@ -13,10 +13,21 @@ namespace TerminalChess
 {
     internal class GameEngine
     {
+        enum Castling
+        {
+            B_KING_SIDE,
+            B_QUEEN_SIDE,
+            W_KING_SIDE,
+            W_QUEEN_SIDE,
+            NOT_CASTLING
+        }
+
+        private Castling castling;
         private int cols = 8;
         private int rows = 8;
         private List<Square> board = new();
         private int numPieces;
+
         public Player p1 { get; }
         public Player p2 { get; }
         public Player currentPlayer { get; set; }
@@ -255,8 +266,13 @@ namespace TerminalChess
                 // Move matches the regex
                 if (moveRegex.IsMatch(turn))
                 {
-                    // Check if the move is legal
+                    // Check if the user is intending to castle this turn
+                    CheckCastling(turn);
+
+                    // Validate the turn string against the game rules
                     validCommand = ValidateTurn(turn);
+
+                    castling = Castling.NOT_CASTLING;
                 }
 
                 if (!validCommand)
@@ -272,6 +288,33 @@ namespace TerminalChess
 
             currentPlayer = (currentPlayer == p1) ? p2 : p1;
             return;
+        }
+
+        /// <summary>
+        /// Assigns a castling variable that lets the validation method
+        /// know the players intention.
+        /// </summary>
+        /// <param name="turn"></param>
+        private void CheckCastling(string turn)
+        {
+            switch(turn)
+            {
+                case "E1TOG1":
+                    castling = Castling.W_KING_SIDE;
+                    break;
+                case "E1TOC1":
+                    castling = Castling.W_QUEEN_SIDE;
+                    break;
+                case "E8TOG8":
+                    castling = Castling.B_KING_SIDE;
+                    break;
+                case "E8TOC8":
+                    castling = Castling.B_QUEEN_SIDE;
+                    break;
+                default:
+                    castling = Castling.NOT_CASTLING;
+                    break;
+            }
         }
 
         /// <summary>
@@ -393,8 +436,14 @@ namespace TerminalChess
             // Get the destination square
             Square newSquare = GetSquareAtPos(moveToRow, moveToCol);
 
+            // Store the state of the salient pieces incase the move is determined invalid and the board state needs resetting
             Square backupCurSquare = new(curSquare.row, curSquare.col, curSquare.piece);
             Square backupNewSquare = new(newSquare.row, newSquare.col, newSquare.piece);
+            backupCurSquare.piece.HasMoved = curSquare.piece.HasMoved;
+            if (newSquare.piece != null)
+            {
+                backupNewSquare.piece.HasMoved = newSquare.piece.HasMoved;
+            }
             bool pieceCaptured = false;
 
             // If a piece was captured update the players score
@@ -403,6 +452,86 @@ namespace TerminalChess
                 pieceCaptured = true;
                 currentPlayer.capturedPieces.Add(newSquare.piece.Name);
                 currentPlayer.Score += newSquare.piece.Value;
+            }
+
+            // Check that the player is not trying to castle through check
+            switch (castling)
+            {
+                case Castling.W_KING_SIDE:
+                    Square f1 = GetSquareAtPos(0, 5);
+                    f1.piece = curSquare.piece;
+                    curSquare.piece = null;
+
+                    if (IsPlayerInCheck(currentPlayer))
+                    {
+                        curSquare.piece = f1.piece;
+                        f1.piece = null;
+
+                        Console.WriteLine("You cannot castle through check");
+                        return false;
+                    }
+
+                    curSquare.piece = f1.piece;
+                    f1.piece = null;
+                    break;
+
+                case Castling.W_QUEEN_SIDE:
+                    for(int i = 1; i < 3; i++)
+                    {
+                        Square moveThroughSquare = GetSquareAtPos(0, curSquare.col - i);
+                        moveThroughSquare.piece = curSquare.piece;
+                        curSquare.piece = null;
+
+                        if (IsPlayerInCheck(currentPlayer))
+                        {
+                            curSquare.piece = moveThroughSquare.piece;
+                            moveThroughSquare.piece = null;
+                            Console.WriteLine("You cannot castle through check");
+                            return false;
+                        }
+
+                        curSquare.piece = moveThroughSquare.piece;
+                        moveThroughSquare.piece = null;
+                    }
+                    break;
+
+                case Castling.B_KING_SIDE:
+                    Square f8 = GetSquareAtPos(7, 5);
+                    f8.piece = curSquare.piece;
+                    curSquare.piece = null;
+
+                    if (IsPlayerInCheck(currentPlayer))
+                    {
+                        curSquare.piece = f8.piece;
+                        f8.piece = null;
+
+                        Console.WriteLine("You cannot castle through check");
+                        return false;
+                    }
+
+                    curSquare.piece = f8.piece;
+                    f8.piece = null;
+                    break;
+
+                case Castling.B_QUEEN_SIDE:
+                    for (int i = 1; i < 3; i++)
+                    {
+                        Square moveThroughSquare = GetSquareAtPos(7, curSquare.col - i);
+                        moveThroughSquare.piece = curSquare.piece;
+                        curSquare.piece = null;
+
+                        if (IsPlayerInCheck(currentPlayer))
+                        {
+                            curSquare.piece = moveThroughSquare.piece;
+                            moveThroughSquare.piece = null;
+                            Console.WriteLine("You cannot castle through check");
+                            return false;
+                        }
+
+                        curSquare.piece = moveThroughSquare.piece;
+                        moveThroughSquare.piece = null;
+                    }
+                    break;
             }
 
             // Update the moved pieces position
@@ -428,6 +557,36 @@ namespace TerminalChess
                 return false;
             }
 
+            // If castling move the rook
+            switch (castling)
+            {
+                case Castling.W_KING_SIDE:
+                    GetSquareAtPos(0, 5).piece = GetSquareAtPos(0, 7).piece;
+                    GetSquareAtPos(0, 7).piece = null;
+                    break;
+
+                case Castling.W_QUEEN_SIDE:   
+                    GetSquareAtPos(0, 3).piece = GetSquareAtPos(0, 0).piece;
+                    GetSquareAtPos(0, 0).piece = null;
+                    break;
+
+                case Castling.B_KING_SIDE:
+                    GetSquareAtPos(7, 5).piece = GetSquareAtPos(7, 7).piece;
+                    GetSquareAtPos(7, 7).piece = null;
+                    break;
+
+                case Castling.B_QUEEN_SIDE:
+                    GetSquareAtPos(7, 3).piece = GetSquareAtPos(7, 0).piece;
+                    GetSquareAtPos(7, 0).piece = null;
+                    break;
+            }
+
+            // Mark the piece as having moved for the purpose of castling
+            if (!newSquare.piece.HasMoved)
+            {
+                newSquare.piece.HasMoved = true;
+            }
+
             return true;
         }
 
@@ -450,10 +609,16 @@ namespace TerminalChess
             return null;
         }
 
+        /// <summary>
+        /// Returns true or false depending on if the player is currently in check or not
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
         bool IsPlayerInCheck(Player p)
         {
             var colour = (p == p1) ? Piece.Colour.White : Piece.Colour.Black;
 
+            // Loop through the board and check every enemy piece to see if they are currently attacking the king
             foreach (Square s in board)
                 {
                     if (s.piece != null)

@@ -35,6 +35,49 @@ namespace TerminalChess
             CheckForwardAndBackMove(row, col, -1, ge);
             CheckLeftAndRightMove(row, col, 1, ge);
             CheckLeftAndRightMove(row, col, -1, ge);
+            CheckCastling(ge);
+        }
+
+        private void CheckCastling(GameEngine ge)
+        {
+            if(!HasMoved && colour == Colour.Black)
+            {
+                // Check black castle king side
+                if(!ge.GetSquareAtPos(7, 7).piece.HasMoved)
+                {
+                    if (ge.GetSquareAtPos(7, 6).piece == null && ge.GetSquareAtPos(7, 5).piece == null)
+                    {
+                        possibleMoves.Add((7, 6));
+                    }
+                }
+                // Check black castle queen side
+                else if (!ge.GetSquareAtPos(7, 0).piece.HasMoved)
+                {
+                    if (ge.GetSquareAtPos(7, 1).piece == null && ge.GetSquareAtPos(7, 2).piece == null && ge.GetSquareAtPos(7, 3).piece == null)
+                    {
+                        possibleMoves.Add((7, 2));
+                    }
+                }
+            }
+            else if(!HasMoved && colour == Colour.White)
+            {
+                // Check white castle king side
+                if (!ge.GetSquareAtPos(0, 7).piece.HasMoved)
+                {
+                    if (ge.GetSquareAtPos(0, 6).piece == null && ge.GetSquareAtPos(0, 5).piece == null)
+                    {
+                        possibleMoves.Add((0, 6));
+                    }
+                }
+                // Check white castle queen side
+                else if (!ge.GetSquareAtPos(0, 0).piece.HasMoved)
+                {
+                    if (ge.GetSquareAtPos(0, 1).piece == null && ge.GetSquareAtPos(0, 2).piece == null && ge.GetSquareAtPos(0, 3).piece == null)
+                    {
+                        possibleMoves.Add((0, 2));
+                    }
+                }
+            }
         }
 
         private void CheckDiagonalMove(int row, int col, int rowModifier, int colModifier, GameEngine ge)
