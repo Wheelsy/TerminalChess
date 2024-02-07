@@ -291,33 +291,6 @@ namespace TerminalChess
         }
 
         /// <summary>
-        /// Assigns a castling variable that lets the validation method
-        /// know the players intention.
-        /// </summary>
-        /// <param name="turn"></param>
-        private void CheckCastling(string turn)
-        {
-            switch(turn)
-            {
-                case "E1TOG1":
-                    castling = Castling.W_KING_SIDE;
-                    break;
-                case "E1TOC1":
-                    castling = Castling.W_QUEEN_SIDE;
-                    break;
-                case "E8TOG8":
-                    castling = Castling.B_KING_SIDE;
-                    break;
-                case "E8TOC8":
-                    castling = Castling.B_QUEEN_SIDE;
-                    break;
-                default:
-                    castling = Castling.NOT_CASTLING;
-                    break;
-            }
-        }
-
-        /// <summary>
         /// Takes a valid turn string and checks if it is a legal chess move
         /// </summary>
         /// <param name="turn"></param>
@@ -325,71 +298,16 @@ namespace TerminalChess
         {
             // Extract the origin square coordinates from the move command
             int moveFromRow = int.Parse(turn[1].ToString()) - 1;
-            int movefromCol = -1;
-
-            switch (turn[0])
-            {
-                case 'A':
-                    movefromCol = 0;
-                    break;
-                case 'B':
-                    movefromCol = 1;
-                    break;
-                case 'C':
-                    movefromCol = 2;
-                    break;
-                case 'D':
-                    movefromCol = 3;
-                    break;
-                case 'E':
-                    movefromCol = 4;
-                    break;
-                case 'F':
-                    movefromCol = 5;
-                    break;
-                case 'G':
-                    movefromCol = 6;
-                    break;
-                case 'H':
-                    movefromCol = 7;
-                    break;
-            }
+            int movefromCol = ParseCoordinates(turn[0]);
 
             // Extract the destination square coordinates from the move command
             int moveToRow = int.Parse(turn[5].ToString()) - 1;
-            int moveToCol = -1;
-
-            switch (turn[4])
-            {
-                case 'A':
-                    moveToCol = 0;
-                    break;
-                case 'B':
-                    moveToCol = 1;
-                    break;
-                case 'C':
-                    moveToCol = 2;
-                    break;
-                case 'D':
-                    moveToCol = 3;
-                    break;
-                case 'E':
-                    moveToCol = 4;
-                    break;
-                case 'F':
-                    moveToCol = 5;
-                    break;
-                case 'G':
-                    moveToCol = 6;
-                    break;
-                case 'H':
-                    moveToCol = 7;
-                    break;
-            }
+            int moveToCol = ParseCoordinates(turn[4]);
 
             // Get the starting square
             Square curSquare = GetSquareAtPos(moveFromRow, movefromCol);
 
+            //Check the player has selected a square that contains a piece
             if(curSquare.piece == null){
                 Console.WriteLine("There is no piece in the selected square.");
                 return false;
@@ -413,21 +331,8 @@ namespace TerminalChess
                 }
             }
 
-            // Loop through all possible moves and see if the users input is among them
-            bool moveIsPossible = false;
-
-            foreach (var entry in curSquare.piece.GetPossibleMoves(moveFromRow, movefromCol, this))
-            {
-                int validRow = entry.Item1;
-                int validCol = entry.Item2;
-
-                if (validRow == moveToRow && validCol == moveToCol)
-                {
-                    moveIsPossible = true;
-                }
-            }
-
-            if (!moveIsPossible)
+            // Check if the proposed move is found in the list of possible moves
+            if (!IsMoveValid(curSquare.piece.GetPossibleMoves(moveFromRow, movefromCol, this), moveToRow, moveToCol))
             {
                 Console.WriteLine("Move not found in possible moves");
                 return false;
@@ -469,6 +374,120 @@ namespace TerminalChess
                 currentPlayer.Score += newSquare.piece.Value;
             }
 
+            // Validate castling
+            if(castling != Castling.NOT_CASTLING)
+            {
+                if (!DoCastle(curSquare))
+                {
+                    return false;
+                }
+            }
+
+            // Update the moved pieces position
+            newSquare.piece = curSquare.piece;
+
+            // Remove the moved piece from the origin square
+            curSquare.piece = null;
+
+            // See if the current player has ended their turn in check
+            if (IsPlayerInCheck(currentPlayer))
+            {
+                // Reset the board state
+                newSquare.piece = backupNewSquare.piece;
+                curSquare.piece = backupCurSquare.piece;
+
+                if (pieceCaptured)
+                {
+                    currentPlayer.capturedPieces.RemoveAt(currentPlayer.capturedPieces.Count());
+                    currentPlayer.Score -= backupNewSquare.piece.Value;
+                }
+
+                Console.WriteLine("You cannot end your turn in check");
+                return false;
+            }
+
+            // Update double move bool for purposes of en passent
+            if (newSquare.piece is Pawn pawn1 && (moveFromRow - moveToRow == 2 || moveFromRow - moveToRow == -2))
+            {
+                pawn1.LastMoveWasDouble = true;
+            }
+            else if (newSquare.piece is Pawn pawn2)
+            {
+                pawn2.LastMoveWasDouble = false;
+            }
+
+            if (castling != Castling.NOT_CASTLING)
+            {
+                // If castling move the rook
+                switch (castling)
+                {
+                    case Castling.W_KING_SIDE:
+                        GetSquareAtPos(0, 5).piece = GetSquareAtPos(0, 7).piece;
+                        GetSquareAtPos(0, 7).piece = null;
+                        break;
+
+                    case Castling.W_QUEEN_SIDE:
+                        GetSquareAtPos(0, 3).piece = GetSquareAtPos(0, 0).piece;
+                        GetSquareAtPos(0, 0).piece = null;
+                        break;
+
+                    case Castling.B_KING_SIDE:
+                        GetSquareAtPos(7, 5).piece = GetSquareAtPos(7, 7).piece;
+                        GetSquareAtPos(7, 7).piece = null;
+                        break;
+
+                    case Castling.B_QUEEN_SIDE:
+                        GetSquareAtPos(7, 3).piece = GetSquareAtPos(7, 0).piece;
+                        GetSquareAtPos(7, 0).piece = null;
+                        break;
+                }
+            }
+
+            // Mark the piece as having moved for the purpose of castling
+            if (!newSquare.piece.HasMoved)
+            {
+                newSquare.piece.HasMoved = true;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Assigns a castling variable that lets the validation method
+        /// know the players intention.
+        /// </summary>
+        /// <param name="turn"></param>
+        private void CheckCastling(string turn)
+        {
+            switch (turn)
+            {
+                case "E1TOG1":
+                    castling = Castling.W_KING_SIDE;
+                    break;
+                case "E1TOC1":
+                    castling = Castling.W_QUEEN_SIDE;
+                    break;
+                case "E8TOG8":
+                    castling = Castling.B_KING_SIDE;
+                    break;
+                case "E8TOC8":
+                    castling = Castling.B_QUEEN_SIDE;
+                    break;
+                default:
+                    castling = Castling.NOT_CASTLING;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Loop through all the individual moved involved in castling
+        /// If castling moves through or ends in check return false
+        /// Else returns true
+        /// </summary>
+        /// <param name="curSquare"></param>
+        /// <returns></returns>
+        private bool DoCastle(Square curSquare)
+        {
             // Check that the player is not trying to castle through check
             switch (castling)
             {
@@ -491,7 +510,7 @@ namespace TerminalChess
                     break;
 
                 case Castling.W_QUEEN_SIDE:
-                    for(int i = 1; i < 3; i++)
+                    for (int i = 1; i < 3; i++)
                     {
                         Square moveThroughSquare = GetSquareAtPos(0, curSquare.col - i);
                         moveThroughSquare.piece = curSquare.piece;
@@ -549,71 +568,73 @@ namespace TerminalChess
                     break;
             }
 
-            // Update the moved pieces position
-            newSquare.piece = curSquare.piece;
-
-            // Remove the moved piece from the origin square
-            curSquare.piece = null;
-
-            // See if the current player has ended their turn in check
-            if (IsPlayerInCheck(currentPlayer))
-            {
-                // Reset the board state
-                newSquare.piece = backupNewSquare.piece;
-                curSquare.piece = backupCurSquare.piece;
-
-                if (pieceCaptured)
-                {
-                    currentPlayer.capturedPieces.RemoveAt(currentPlayer.capturedPieces.Count());
-                    currentPlayer.Score -= backupNewSquare.piece.Value;
-                }
-
-                Console.WriteLine("You cannot end your turn in check");
-                return false;
-            }
-
-            // Update double move bool for purposes of en passent
-            if (newSquare.piece is Pawn pawn1 && (moveFromRow - moveToRow == 2 || moveFromRow - moveToRow == -2))
-            {
-                pawn1.LastMoveWasDouble = true;
-            }
-            else if (newSquare.piece is Pawn pawn2)
-            {
-                pawn2.LastMoveWasDouble = false;
-            }
-
-
-            // If castling move the rook
-            switch (castling)
-            {
-                case Castling.W_KING_SIDE:
-                    GetSquareAtPos(0, 5).piece = GetSquareAtPos(0, 7).piece;
-                    GetSquareAtPos(0, 7).piece = null;
-                    break;
-
-                case Castling.W_QUEEN_SIDE:   
-                    GetSquareAtPos(0, 3).piece = GetSquareAtPos(0, 0).piece;
-                    GetSquareAtPos(0, 0).piece = null;
-                    break;
-
-                case Castling.B_KING_SIDE:
-                    GetSquareAtPos(7, 5).piece = GetSquareAtPos(7, 7).piece;
-                    GetSquareAtPos(7, 7).piece = null;
-                    break;
-
-                case Castling.B_QUEEN_SIDE:
-                    GetSquareAtPos(7, 3).piece = GetSquareAtPos(7, 0).piece;
-                    GetSquareAtPos(7, 0).piece = null;
-                    break;
-            }
-
-            // Mark the piece as having moved for the purpose of castling
-            if (!newSquare.piece.HasMoved)
-            {
-                newSquare.piece.HasMoved = true;
-            }
-
             return true;
+        }
+
+        /// <summary>
+        /// Loop through a list of possible move coordinates and return true
+        /// If the proposed move is among them. Else returns false
+        /// </summary>
+        /// <param name="validMoves"></param>
+        /// <param name="moveToRow"></param>
+        /// <param name="moveToCol"></param>
+        /// <returns></returns>
+        private bool IsMoveValid(List<(int,int)>validMoves, int moveToRow, int moveToCol)
+        {
+            foreach (var entry in validMoves)
+            {
+                int validRow = entry.Item1;
+                int validCol = entry.Item2;
+
+                if (validRow == moveToRow && validCol == moveToCol)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Convert a char column coordinate into an integer
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        private int ParseCoordinates(char column)
+        {
+            int tmp;
+
+            switch (column)
+            {
+                case 'A':
+                    tmp = 0;
+                    break;
+                case 'B':
+                    tmp = 1;
+                    break;
+                case 'C':
+                    tmp = 2;
+                    break;
+                case 'D':
+                    tmp = 3;
+                    break;
+                case 'E':
+                    tmp = 4;
+                    break;
+                case 'F':
+                    tmp = 5;
+                    break;
+                case 'G':
+                    tmp = 6;
+                    break;
+                case 'H':
+                    tmp = 7;
+                    break;
+                default:
+                    tmp = -1;
+                    break;
+            }
+
+            return tmp;
         }
 
         /// <summary>
