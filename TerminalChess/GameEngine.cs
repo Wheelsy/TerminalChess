@@ -216,7 +216,7 @@ namespace TerminalChess
                 {
                     foreach(string piece in p2.capturedPieces)
                     {
-                        tmp += $"{piece} ";
+                        tmp += $"{piece} ".Pastel(Color.SandyBrown);
                     }
 
                     view += $" {p2.username}: {tmp}";
@@ -225,7 +225,7 @@ namespace TerminalChess
                 {
                     foreach (string piece in p1.capturedPieces)
                     {
-                        tmp += $"{piece} ";
+                        tmp += $"{piece} ".Pastel(Color.Chocolate);
                     }
                     view += $" {p1.username}: {tmp}";
                 }
@@ -440,11 +440,26 @@ namespace TerminalChess
             Square backupCurSquare = new(curSquare.row, curSquare.col, curSquare.piece);
             Square backupNewSquare = new(newSquare.row, newSquare.col, newSquare.piece);
             backupCurSquare.piece.HasMoved = curSquare.piece.HasMoved;
+
             if (newSquare.piece != null)
             {
                 backupNewSquare.piece.HasMoved = newSquare.piece.HasMoved;
             }
             bool pieceCaptured = false;
+
+
+            // Check if player is using en passent
+            if (curSquare.piece is Pawn pawn && movefromCol != moveToCol)
+            {
+                if (newSquare.piece == null)
+                {
+                    pieceCaptured = true;
+                    Square s = GetSquareAtPos(pawn.EPCapture.Item1, pawn.EPCapture.Item2);
+                    currentPlayer.capturedPieces.Add(s.piece.Name);
+                    currentPlayer.Score += pawn.Value;
+                    s.piece = null;
+                }
+            }
 
             // If a piece was captured update the players score
             if (newSquare.piece != null)
@@ -556,6 +571,17 @@ namespace TerminalChess
                 Console.WriteLine("You cannot end your turn in check");
                 return false;
             }
+
+            // Update double move bool for purposes of en passent
+            if (newSquare.piece is Pawn pawn1 && (moveFromRow - moveToRow == 2 || moveFromRow - moveToRow == -2))
+            {
+                pawn1.LastMoveWasDouble = true;
+            }
+            else if (newSquare.piece is Pawn pawn2)
+            {
+                pawn2.LastMoveWasDouble = false;
+            }
+
 
             // If castling move the rook
             switch (castling)
