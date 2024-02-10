@@ -32,6 +32,9 @@ if (menuSelection == "0")
     {
         gameOver = Play(ge);
     }
+
+    utils.Print(utils.gameOverMenu);
+    var selection = utils.GetMenuSelection(Utils.MENU_TYPES.GAME_OVER);
 }
 
 /// <summary>
@@ -52,6 +55,14 @@ bool Play(GameEngine ge)
     {
         return false;
     }
+
+    view = ge.View();
+    utils.Print(view);
+
+    string winner = (ge.p1.Winner) ? ge.p1.username : ge.p2.username;
+    string Loser = (ge.p1.Winner) ? ge.p2.username : ge.p1.username;
+
+    utils.Print($"\n{Loser} has been checkmated. {winner} wins!\n");
 
     return true;
 }

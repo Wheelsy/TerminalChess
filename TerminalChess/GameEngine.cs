@@ -30,7 +30,9 @@ namespace TerminalChess
 
         public Player p1 { get; }
         public Player p2 { get; }
-        public Player currentPlayer { get; set; }
+        public Player CurrentPlayer { get; set; }
+        public Player OpponentPlayer { get; set; }
+
         public int TurnNo { get; set; }
 
         /// <summary>
@@ -44,7 +46,8 @@ namespace TerminalChess
             this.p2 = p2;
             numPieces = 32;
             TurnNo = 1;
-            currentPlayer = p1;
+            CurrentPlayer = p1;
+            OpponentPlayer = p2;
 
             AddPiecesToBoard();
         }
@@ -236,8 +239,8 @@ namespace TerminalChess
 
             view += "  A B C D E F G H\n";
 
-            view += $"\n{currentPlayer.username} your turn:";
-            if (IsPlayerInCheck(currentPlayer))
+            view += $"\n{CurrentPlayer.username} your turn:";
+            if (IsPlayerInCheck(CurrentPlayer))
             {
                 view += "(You are in check)";
             }
@@ -281,12 +284,19 @@ namespace TerminalChess
                 }
             }
 
-            if(currentPlayer == p2)
+            if(CurrentPlayer == p2)
             {
                 TurnNo++;
             }
 
-            currentPlayer = (currentPlayer == p1) ? p2 : p1;
+            if (IsOpponentCheckmated())
+            {
+                CurrentPlayer.Winner = true;
+                return;
+            }
+
+            CurrentPlayer = (CurrentPlayer == p1) ? p2 : p1;
+            OpponentPlayer = (CurrentPlayer == p1) ? p2 : p1;
             return;
         }
 
@@ -314,7 +324,7 @@ namespace TerminalChess
             }
 
             // Check the player has selected the correct colour piece
-            if (currentPlayer == p1)
+            if (CurrentPlayer == p1)
             {
                 if (curSquare.piece.colour != Piece.Colour.White)
                 {
@@ -360,8 +370,8 @@ namespace TerminalChess
                 {
                     pieceCaptured = true;
                     Square s = GetSquareAtPos(pawn.EPCapture.Item1, pawn.EPCapture.Item2);
-                    currentPlayer.capturedPieces.Add(s.piece.Name);
-                    currentPlayer.Score += pawn.Value;
+                    CurrentPlayer.capturedPieces.Add(s.piece.Name);
+                    CurrentPlayer.Score += pawn.Value;
                     s.piece = null;
                 }
             }
@@ -370,8 +380,8 @@ namespace TerminalChess
             if (newSquare.piece != null)
             {
                 pieceCaptured = true;
-                currentPlayer.capturedPieces.Add(newSquare.piece.Name);
-                currentPlayer.Score += newSquare.piece.Value;
+                CurrentPlayer.capturedPieces.Add(newSquare.piece.Name);
+                CurrentPlayer.Score += newSquare.piece.Value;
             }
 
             // Validate castling
@@ -390,17 +400,10 @@ namespace TerminalChess
             curSquare.piece = null;
 
             // See if the current player has ended their turn in check
-            if (IsPlayerInCheck(currentPlayer))
+            if (IsPlayerInCheck(CurrentPlayer))
             {
                 // Reset the board state
-                newSquare.piece = backupNewSquare.piece;
-                curSquare.piece = backupCurSquare.piece;
-
-                if (pieceCaptured)
-                {
-                    currentPlayer.capturedPieces.RemoveAt(currentPlayer.capturedPieces.Count());
-                    currentPlayer.Score -= backupNewSquare.piece.Value;
-                }
+                UndoMove(newSquare, curSquare, backupNewSquare, backupCurSquare, pieceCaptured);
 
                 Console.WriteLine("You cannot end your turn in check");
                 return false;
@@ -452,6 +455,25 @@ namespace TerminalChess
             return true;
         }
 
+        private void UndoMove(Square newSquare, Square curSquare, Square backupNewSquare, Square backupCurSquare, bool pieceCaptured)
+        {
+            // Reset the board state
+            if (backupNewSquare.piece != null)
+            {
+                newSquare.piece = backupNewSquare.piece;
+            }
+            curSquare.piece = backupCurSquare.piece;
+
+            if (pieceCaptured)
+            {
+                if (CurrentPlayer.capturedPieces.Count() > 0)
+                {
+                    CurrentPlayer.capturedPieces.RemoveAt(CurrentPlayer.capturedPieces.Count() - 1);
+                    CurrentPlayer.Score -= backupNewSquare.piece.Value;
+                }
+            }
+        }
+
         /// <summary>
         /// Assigns a castling variable that lets the validation method
         /// know the players intention.
@@ -496,7 +518,7 @@ namespace TerminalChess
                     f1.piece = curSquare.piece;
                     curSquare.piece = null;
 
-                    if (IsPlayerInCheck(currentPlayer))
+                    if (IsPlayerInCheck(CurrentPlayer))
                     {
                         curSquare.piece = f1.piece;
                         f1.piece = null;
@@ -516,7 +538,7 @@ namespace TerminalChess
                         moveThroughSquare.piece = curSquare.piece;
                         curSquare.piece = null;
 
-                        if (IsPlayerInCheck(currentPlayer))
+                        if (IsPlayerInCheck(CurrentPlayer))
                         {
                             curSquare.piece = moveThroughSquare.piece;
                             moveThroughSquare.piece = null;
@@ -533,8 +555,8 @@ namespace TerminalChess
                     Square f8 = GetSquareAtPos(7, 5);
                     f8.piece = curSquare.piece;
                     curSquare.piece = null;
-
-                    if (IsPlayerInCheck(currentPlayer))
+                        
+                    if (IsPlayerInCheck(CurrentPlayer))
                     {
                         curSquare.piece = f8.piece;
                         f8.piece = null;
@@ -554,7 +576,7 @@ namespace TerminalChess
                         moveThroughSquare.piece = curSquare.piece;
                         curSquare.piece = null;
 
-                        if (IsPlayerInCheck(currentPlayer))
+                        if (IsPlayerInCheck(CurrentPlayer))
                         {
                             curSquare.piece = moveThroughSquare.piece;
                             moveThroughSquare.piece = null;
@@ -692,5 +714,60 @@ namespace TerminalChess
                 }
             return false;
         }
+
+        public bool IsOpponentCheckmated()
+        {
+            var colour = (OpponentPlayer == p1) ? Piece.Colour.White : Piece.Colour.Black;
+
+            // Check if the opponent player is in check
+            if (!IsPlayerInCheck(OpponentPlayer))
+            {
+                // If the opponent is not in check, they cannot be checkmated
+                return false;
+            }
+
+            // Find the opponents king 
+            foreach (Square square in board)
+            {
+                if (square.piece != null && square.piece.colour == colour && square.piece is King)
+                {
+                    // Obtain valid moves for the king
+                    List<(int, int)> validMoves = square.piece.GetPossibleMoves(square.row, square.col, this);
+
+                    // Check each valid move
+                    foreach (var move in validMoves)
+                    {
+                        int moveToRow = move.Item1;
+                        int moveToCol = move.Item2;
+
+                        // Simulate the move
+                        Square backupCurSquare = new Square(square.row, square.col, square.piece);
+                        Square newSquare = GetSquareAtPos(moveToRow, moveToCol);
+                        Square backupNewSquare = new Square(moveToRow, moveToCol, newSquare?.piece);
+
+                        // Update the board state
+                        newSquare.piece = square.piece;
+                        square.piece = null;
+
+                        // Check if the opponent is still in check after the move
+                        bool isStillInCheck = IsPlayerInCheck(OpponentPlayer);
+
+                        // Undo the move
+                        UndoMove(newSquare, square, backupNewSquare, backupCurSquare, false);
+
+                        // If the opponent is not in check after the move, they are not checkmated
+                        if (!isStillInCheck)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            
+            // Opponent has been checkmated
+            return true;
+        }
+
+
     }
 }

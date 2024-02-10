@@ -27,14 +27,13 @@ namespace TerminalChess
         {
             base.CalculatePossibleMoves(row, col, ge);
 
-            CheckDiagonalMove(row, col, 1, 1, ge);
-            CheckDiagonalMove(row, col, 1, -1, ge);
-            CheckDiagonalMove(row, col, -1, -1, ge);
-            CheckDiagonalMove(row, col, -1, 1, ge);
-            CheckForwardAndBackMove(row, col, 1, ge);
-            CheckForwardAndBackMove(row, col, -1, ge);
-            CheckLeftAndRightMove(row, col, 1, ge);
-            CheckLeftAndRightMove(row, col, -1, ge);
+            CheckDiagonalMove(row, col, 1, -1, ge); // Upper left diagonal
+            CheckDiagonalMove(row, col, -1, -1, ge); // Lower left diagonal
+            CheckDiagonalMove(row, col, -1, 1, ge); // Lower right diagonal
+            CheckForwardAndBackMove(row, col, 1, ge); // Check up moves
+            CheckForwardAndBackMove(row, col, -1, ge); // Check down moves
+            CheckLeftAndRightMove(row, col, 1, ge); // Check right moves
+            CheckLeftAndRightMove(row, col, -1, ge); // Check left moves
             CheckCastling(ge);
         }
 
@@ -106,6 +105,10 @@ namespace TerminalChess
                     if (sqr.piece.colour != this.colour)
                     {
                         possibleMoves.Add((sqr.row, sqr.col));
+                        return;
+                    }
+                    else
+                    {
                         return;
                     }
                 }
