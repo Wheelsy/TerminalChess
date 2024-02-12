@@ -241,11 +241,6 @@ namespace TerminalChess
 
             view += "  A B C D E F G H\n";
 
-            if (IsPlayerInCheck(CurrentPlayer))
-            {
-                view += "(You are in check)";
-            }
-
             return view;
         }
 
@@ -285,17 +280,28 @@ namespace TerminalChess
                 }
             }
 
+            // Iterate the turn counter
             if(CurrentPlayer == p2)
             {
                 TurnNo++;
             }
 
+            // Check for checkmate
             if (IsOpponentCheckmated())
             {
                 CurrentPlayer.Winner = true;
                 return;
             }
 
+            // Check for stalemate
+            if (CheckStalemate())
+            {
+                p1.Winner = true;
+                p2.Winner = true;
+                return;
+            }
+
+            // Update the current player
             CurrentPlayer = (CurrentPlayer == p1) ? p2 : p1;
             OpponentPlayer = (CurrentPlayer == p1) ? p2 : p1;
             return;
@@ -343,7 +349,9 @@ namespace TerminalChess
             }
 
             // Check if the proposed move is found in the list of possible moves
-            if (!IsMoveValid(curSquare.piece.GetPossibleMoves(moveFromRow, movefromCol, this), moveToRow, moveToCol))
+            List<(int, int)> validMoves = curSquare.piece.GetPossibleMoves(moveFromRow, movefromCol, this);
+
+            if (!IsMoveValid(validMoves, moveToRow, moveToCol))
             {
                 Console.WriteLine("Move not found in possible moves");
                 return false;
@@ -361,8 +369,8 @@ namespace TerminalChess
             {
                 backupNewSquare.piece.HasMoved = newSquare.piece.HasMoved;
             }
-            bool pieceCaptured = false;
 
+            bool pieceCaptured = false;
 
             // Check if player is using en passent
             if (curSquare.piece is Pawn pawn && movefromCol != moveToCol)
@@ -466,18 +474,28 @@ namespace TerminalChess
 
         private void UndoMove(Square newSquare, Square curSquare, Square backupNewSquare, Square backupCurSquare, bool pieceCaptured)
         {
-            // Reset the board state
-            if (backupNewSquare.piece != null)
-            {
-                newSquare.piece = backupNewSquare.piece;
-            }
+            // Restore the state of the moved pieces
             curSquare.piece = backupCurSquare.piece;
+            newSquare.piece = backupNewSquare.piece;
 
+            // Restore the 'HasMoved' flag if applicable
+            if (curSquare.piece != null)
+            {
+                curSquare.piece.HasMoved = backupCurSquare.piece.HasMoved;
+            }
+
+            // Restore the captured piece if applicable
             if (pieceCaptured)
             {
-                if (CurrentPlayer.capturedPieces.Count() > 0)
+                // Remove the last captured piece from the player's captured pieces list
+                if (CurrentPlayer.capturedPieces.Count > 0)
                 {
-                    CurrentPlayer.capturedPieces.RemoveAt(CurrentPlayer.capturedPieces.Count() - 1);
+                    CurrentPlayer.capturedPieces.RemoveAt(CurrentPlayer.capturedPieces.Count - 1);
+                }
+
+                // Deduct the value of the captured piece from the player's score
+                if (backupNewSquare.piece != null)
+                {
                     CurrentPlayer.Score -= backupNewSquare.piece.Value;
                 }
             }
@@ -717,7 +735,7 @@ namespace TerminalChess
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
-        bool IsPlayerInCheck(Player p)
+        public bool IsPlayerInCheck(Player p)
         {
             var colour = (p == p1) ? Piece.Colour.White : Piece.Colour.Black;
 
@@ -802,6 +820,51 @@ namespace TerminalChess
             return true;
         }
 
+        private bool CheckStalemate()
+        {
+            var colour = (CurrentPlayer == p1) ? Piece.Colour.Black : Piece.Colour.White;
 
+            // Find the opponents king 
+            foreach (Square square in board)
+            {
+                if (square.piece != null && square.piece.colour == colour )
+                {
+                    // Obtain valid moves for the piece
+                    List<(int, int)> validMoves = square.piece.GetPossibleMoves(square.row, square.col, this);
+
+                    // Check each valid move
+                    foreach (var move in validMoves)
+                    {
+                        int moveToRow = move.Item1;
+                        int moveToCol = move.Item2;
+
+                        // Simulate the move
+                        Square backupCurSquare = new Square(square.row, square.col, square.piece);
+                        Square newSquare = GetSquareAtPos(moveToRow, moveToCol);
+                        Square backupNewSquare = new Square(moveToRow, moveToCol, newSquare?.piece);
+
+                        // Update the board state
+                        newSquare.piece = square.piece;
+                        square.piece = null;
+
+                        // Check if the opponent is in check after the move
+                        bool isInCheck = IsPlayerInCheck(OpponentPlayer);
+
+                        // Undo the move
+                        UndoMove(newSquare, square, backupNewSquare, backupCurSquare, false);
+
+                        // If the opponent is not in check after the move, no stalemate
+                        if (!isInCheck)
+                        {
+                            Console.WriteLine($"Possible move: {square.piece.Name} to row {moveToRow}, col {moveToCol}");
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            // If no valid move could be found the game is a stalemate
+            return true;
+        }
     }
 }

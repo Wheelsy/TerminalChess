@@ -47,23 +47,34 @@ bool Play(GameEngine ge)
     string view = ge.View();
     utils.Print(view);
     utils.Print($"\n{ge.CurrentPlayer.username} your turn:");
+    if (ge.IsPlayerInCheck(ge.CurrentPlayer))
+    {
+        utils.Print("\n(You are in check)");
+    }
 
     // Call the game engine to execute the turn
     ge.Turn();
 
-    // Check if the game is over
+    // Check if the game is over or continuing
     if (!ge.p1.Winner && !ge.p2.Winner)
     {
         return false;
     }
-
-    view = ge.View();
-    utils.Print(view);
-
-    string winner = (ge.p1.Winner) ? ge.p1.username : ge.p2.username;
-    string Loser = (ge.p1.Winner) ? ge.p2.username : ge.p1.username;
-
-    utils.Print($"\n{Loser} has been checkmated. {winner} wins!\n");
+    else if(ge.p1.Winner && ge.p2.Winner)
+    {
+        view = ge.View();
+        utils.Print(view);
+        utils.Print("Stalemate!\n");
+        return true;
+    }
+    else
+    {
+        view = ge.View();
+        utils.Print(view);
+        string winner = (ge.p1.Winner) ? ge.p1.username : ge.p2.username;
+        string Loser = (ge.p1.Winner) ? ge.p2.username : ge.p1.username;
+        utils.Print($"\n{Loser} has been checkmated. {winner} wins!\n");
+    }
 
     return true;
 }

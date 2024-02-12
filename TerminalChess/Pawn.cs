@@ -32,30 +32,31 @@ namespace TerminalChess
             base.CalculatePossibleMoves(row, col, ge);
             CheckEnPassent(ge, row, col);
 
-            if (row == 1 || row == 6)
-            {
-                // Check if the square 2 in front is occupied
-                Square doubleMove = ge.GetSquareAtPos(row + (2 * colourModifier), col);
-
-                if (doubleMove != null)
-                {
-                    if (doubleMove.piece == null)
-                    {
-                        possibleMoves.Add((doubleMove.row, doubleMove.col));
-                    }
-                }
-            }       
-
             // Check if the square in front is occupied
             Square infront = ge.GetSquareAtPos(row + colourModifier, col);
 
-            if(infront != null)
+            if (infront != null)
             {
                 if (infront.piece == null)
                 {
                     possibleMoves.Add((infront.row, infront.col));
+
+                    // Check for a double move
+                    if (row == 1 || row == 6)
+                    {
+                        // Check if the square 2 in front is occupied
+                        Square doubleMove = ge.GetSquareAtPos(row + (2 * colourModifier), col);
+
+                        if (doubleMove != null)
+                        {
+                            if (doubleMove.piece == null)
+                            {
+                                possibleMoves.Add((doubleMove.row, doubleMove.col));
+                            }
+                        }
+                    }
                 }
-            }
+            }    
 
             // Check diagonals
             Square diagonal1 = ge.GetSquareAtPos(row + colourModifier, col + colourModifier);
