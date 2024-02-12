@@ -27,6 +27,7 @@ namespace TerminalChess
         private int rows = 8;
         private List<Square> board = new();
         private int numPieces;
+        private Utils utils;
 
         public Player p1 { get; }
         public Player p2 { get; }
@@ -48,6 +49,7 @@ namespace TerminalChess
             TurnNo = 1;
             CurrentPlayer = p1;
             OpponentPlayer = p2;
+            utils = new();
 
             AddPiecesToBoard();
         }
@@ -239,7 +241,6 @@ namespace TerminalChess
 
             view += "  A B C D E F G H\n";
 
-            view += $"\n{CurrentPlayer.username} your turn:";
             if (IsPlayerInCheck(CurrentPlayer))
             {
                 view += "(You are in check)";
@@ -398,6 +399,14 @@ namespace TerminalChess
 
             // Remove the moved piece from the origin square
             curSquare.piece = null;
+
+            // Check if a pawn is being promoted
+            if (newSquare.piece is Pawn && (moveToRow == 7 || moveToRow == 0))
+            {
+                utils.Print(utils.promotion);
+                string promotionSelection = utils.GetMenuSelection(Utils.MENU_TYPES.PROMOTION);
+                DoPromotion(newSquare, promotionSelection);
+            }
 
             // See if the current player has ended their turn in check
             if (IsPlayerInCheck(CurrentPlayer))
@@ -591,6 +600,31 @@ namespace TerminalChess
             }
 
             return true;
+        }
+
+        private void DoPromotion(Square square, string promotionSelection)
+        {
+            Colour colour = (CurrentPlayer == p1) ? Piece.Colour.White : Piece.Colour.Black;
+
+            switch (promotionSelection)
+            {
+                case "0":
+                    Knight knight = new(colour);
+                    square.piece = knight;
+                    break;
+                case "1":
+                    Bishop bishop = new(colour);
+                    square.piece = bishop;
+                    break;
+                case "2":
+                    Rook rook = new(colour);
+                    square.piece = rook;
+                    break;
+                case "3":
+                    Queen queen = new(colour);
+                    square.piece = queen;
+                    break;
+            }
         }
 
         /// <summary>

@@ -46,7 +46,8 @@ bool Play(GameEngine ge)
     // Print the board
     string view = ge.View();
     utils.Print(view);
-    
+    utils.Print($"\n{ge.CurrentPlayer.username} your turn:");
+
     // Call the game engine to execute the turn
     ge.Turn();
 
