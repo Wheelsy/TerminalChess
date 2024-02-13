@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -26,8 +27,10 @@ namespace TerminalChess
         private int cols = 8;
         private int rows = 8;
         private List<Square> board = new();
-        private int numPieces;
         private Utils utils;
+        private List<string> p1BoardStates = new List<string>();
+        private List<string> p2BoardStates = new List<string>();
+        private int repetitions = 0;
 
         public Player p1 { get; }
         public Player p2 { get; }
@@ -45,7 +48,6 @@ namespace TerminalChess
         {
             this.p1 = p1;
             this.p2 = p2;
-            numPieces = 32;
             TurnNo = 1;
             CurrentPlayer = p1;
             OpponentPlayer = p2;
@@ -56,7 +58,6 @@ namespace TerminalChess
 
         public GameEngine()
         {
-            numPieces = 32;
             TurnNo = 1;
         }
 
@@ -280,17 +281,30 @@ namespace TerminalChess
                 }
             }
 
-            // Iterate the turn counter
-            if(CurrentPlayer == p2)
-            {
-                TurnNo++;
-            }
-
             // Check for checkmate
             if (IsOpponentCheckmated())
             {
                 CurrentPlayer.Winner = true;
                 return;
+            }
+
+            // Update board states for each player
+            UpdateBoardStates();
+
+            // Check for repetition stalemate
+            if (CurrentPlayer == p1 && p1BoardStates.Count == 3)
+            {
+                if (p1BoardStates[0] == p1BoardStates[2])
+                {
+                    repetitions++;
+                }
+            }
+            else if (CurrentPlayer == p2 && p2BoardStates.Count == 3)
+            {
+                if (p2BoardStates[0] == p2BoardStates[2])
+                {
+                    repetitions++;
+                }
             }
 
             // Check for stalemate
@@ -304,6 +318,8 @@ namespace TerminalChess
             // Update the current player
             CurrentPlayer = (CurrentPlayer == p1) ? p2 : p1;
             OpponentPlayer = (CurrentPlayer == p1) ? p2 : p1;
+
+            TurnNo++;
             return;
         }
 
@@ -822,6 +838,12 @@ namespace TerminalChess
 
         private bool CheckStalemate()
         {
+
+            if (repetitions >= 3)
+            {
+                return true;
+            }
+
             var colour = (CurrentPlayer == p1) ? Piece.Colour.Black : Piece.Colour.White;
 
             // Find the opponents king 
@@ -856,7 +878,6 @@ namespace TerminalChess
                         // If the opponent is not in check after the move, no stalemate
                         if (!isInCheck)
                         {
-                            Console.WriteLine($"Possible move: {square.piece.Name} to row {moveToRow}, col {moveToCol}");
                             return false;
                         }
                     }
@@ -865,6 +886,27 @@ namespace TerminalChess
 
             // If no valid move could be found the game is a stalemate
             return true;
+        }
+
+        /// <summary>
+        /// Update boards state for each player
+        /// </summary>
+        private void UpdateBoardStates()
+        {
+            // Store the current board state for each player
+            if (CurrentPlayer == p1)
+            {
+                p1BoardStates.Add(View());
+                // Ensure we only keep track of the last 3 states
+                if (p1BoardStates.Count > 3)
+                    p1BoardStates.RemoveAt(0);
+            }
+            else
+            {
+                p2BoardStates.Add(View());
+                if (p2BoardStates.Count > 3)
+                    p2BoardStates.RemoveAt(0);
+            }
         }
     }
 }
