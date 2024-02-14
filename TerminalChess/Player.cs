@@ -12,6 +12,7 @@ namespace TerminalChess
         public bool Winner { get; set; }
         public int Score { get; set; }
         public List<string> capturedPieces;
+        public bool InCheck { get; set; }
 
         /// <summary>
         /// Constructor
@@ -22,6 +23,7 @@ namespace TerminalChess
             this.Winner = false;
             this.Score = 0;
             capturedPieces = new();
+            InCheck = false;
         }
     }
 }

@@ -21,6 +21,7 @@ namespace TerminalChess
         public string Name { get; init; }
         public Colour colour { get; }
         public int Value { get; set; }
+        public bool HasMoved { get; set; }
 
         protected List<(int, int)> possibleMoves;
         protected int colourModifier;
@@ -37,6 +38,7 @@ namespace TerminalChess
             this.Value = value;
             this.colour = colour;
             possibleMoves = new();
+            HasMoved = false;
         }
 
         public List<(int, int)> GetPossibleMoves(int row, int col, GameEngine ge)

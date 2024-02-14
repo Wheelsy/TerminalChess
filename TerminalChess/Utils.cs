@@ -44,6 +44,12 @@ namespace TerminalChess
 
             """;
 
+        public string promotion =
+            """
+             N   B   R   Q
+            [0] [1] [2] [3]
+            """;
+
         public string inputPrompt = ">";
 
         public string goodbye = "Goodbye =]";
@@ -51,7 +57,8 @@ namespace TerminalChess
         public enum MENU_TYPES {
             MAIN = 0,
             OPTIONS = 1,
-            GAME_OVER = 2
+            GAME_OVER = 2,
+            PROMOTION = 3
         };
 
         /// <summary>
@@ -85,6 +92,10 @@ namespace TerminalChess
                         {
                             return tmp;
                         }
+                        else
+                        {
+                            tmp = null;
+                        }
                         break;
                     case MENU_TYPES.OPTIONS:
                         // SAVE THE CURRENT GAME
@@ -106,12 +117,23 @@ namespace TerminalChess
                         {
                         }
                         break;
+                    case MENU_TYPES.PROMOTION:
+                        // Return the promotion option selected
+                        if (tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2") || tmp.Equals("3"))
+                        {
+                            return tmp;
+                        }
+                        else
+                        {
+                            tmp = null;
+                        }
+                        break;
                     // Wrong input. Restart the loop
                     default:
-                        Console.WriteLine("Invalid input! Try again:");
                         tmp = null;
                         break;
                 }
+                Print("Invalid input! Try again:");
             }
             return null;
         }

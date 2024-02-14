@@ -30,8 +30,19 @@ if (menuSelection == "0")
 
     while (!gameOver)
     {
-        gameOver = Play(ge);
+        try
+        {
+            gameOver = Play(ge);
+        }
+        catch (ChessException e)
+        {
+            utils.Print(e.Message);
+            continue;
+        }
     }
+
+    utils.Print(utils.gameOverMenu);
+    var selection = utils.GetMenuSelection(Utils.MENU_TYPES.GAME_OVER);
 }
 
 /// <summary>
@@ -43,14 +54,35 @@ bool Play(GameEngine ge)
     // Print the board
     string view = ge.View();
     utils.Print(view);
-    
+    utils.Print($"{ge.CurrentPlayer.username} your turn:");
+
+    if (ge.IsPlayerInCheck(ge.CurrentPlayer))
+    {
+        utils.Print("(You are in check)");
+    }
+
     // Call the game engine to execute the turn
     ge.Turn();
 
-    // Check if the game is over
+    // Check if the game is over or continuing
     if (!ge.p1.Winner && !ge.p2.Winner)
     {
         return false;
+    }
+    else if(ge.p1.Winner && ge.p2.Winner)
+    {
+        view = ge.View();
+        utils.Print(view);
+        utils.Print("Stalemate!\n");
+        return true;
+    }
+    else
+    {
+        view = ge.View();
+        utils.Print(view);
+        string winner = (ge.p1.Winner) ? ge.p1.username : ge.p2.username;
+        string Loser = (ge.p1.Winner) ? ge.p2.username : ge.p1.username;
+        utils.Print($"\n{Loser} has been checkmated. {winner} wins!\n");
     }
 
     return true;
