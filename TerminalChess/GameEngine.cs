@@ -31,6 +31,7 @@ namespace TerminalChess
         private List<string> p1BoardStates = new List<string>();
         private List<string> p2BoardStates = new List<string>();
         private int repetitions = 0;
+        private int consecutiveMovesWithoutCapture = 0;
 
         public Player p1 { get; }
         public Player p2 { get; }
@@ -329,6 +330,8 @@ namespace TerminalChess
         /// <param name="turn"></param>
         private bool ValidateTurn(string turn)
         {
+            bool pieceCaptured = false;
+
             // Extract the origin square coordinates from the move command
             int moveFromRow = int.Parse(turn[1].ToString()) - 1;
             int movefromCol = ParseCoordinates(turn[0]);
@@ -385,8 +388,6 @@ namespace TerminalChess
             {
                 backupNewSquare.piece.HasMoved = newSquare.piece.HasMoved;
             }
-
-            bool pieceCaptured = false;
 
             // Check if player is using en passent
             if (curSquare.piece is Pawn pawn && movefromCol != moveToCol)
@@ -483,6 +484,16 @@ namespace TerminalChess
             if (!newSquare.piece.HasMoved)
             {
                 newSquare.piece.HasMoved = true;
+            }
+
+            //Update the consecutive move stalemate counter
+            if (pieceCaptured)
+            {
+                consecutiveMovesWithoutCapture = 0;
+            }
+            else
+            {
+                consecutiveMovesWithoutCapture++;
             }
 
             return true;
@@ -836,10 +847,14 @@ namespace TerminalChess
             return true;
         }
 
+        /// <summary>
+        /// Check if requirements are met for a stalemate
+        /// </summary>
+        /// <returns>True if stalemate. False if not</returns>
         private bool CheckStalemate()
         {
 
-            if (repetitions >= 3)
+            if (repetitions >= 3 || consecutiveMovesWithoutCapture >= 100)
             {
                 return true;
             }
