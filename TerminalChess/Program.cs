@@ -30,7 +30,15 @@ if (menuSelection == "0")
 
     while (!gameOver)
     {
-        gameOver = Play(ge);
+        try
+        {
+            gameOver = Play(ge);
+        }
+        catch (ChessException e)
+        {
+            utils.Print(e.Message);
+            continue;
+        }
     }
 
     utils.Print(utils.gameOverMenu);
@@ -46,10 +54,11 @@ bool Play(GameEngine ge)
     // Print the board
     string view = ge.View();
     utils.Print(view);
-    utils.Print($"\n{ge.CurrentPlayer.username} your turn:");
+    utils.Print($"{ge.CurrentPlayer.username} your turn:");
+
     if (ge.IsPlayerInCheck(ge.CurrentPlayer))
     {
-        utils.Print("\n(You are in check)");
+        utils.Print("(You are in check)");
     }
 
     // Call the game engine to execute the turn

@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static TerminalChess.Piece;
+using static TerminalChess.ChessException;
 
 namespace TerminalChess
 {
@@ -221,7 +222,7 @@ namespace TerminalChess
                 string tmp = "";
                 if (row == 0)
                 {
-                    foreach(string piece in p2.capturedPieces)
+                    foreach (string piece in p2.capturedPieces)
                     {
                         tmp += $"{piece} ".Pastel(Color.SandyBrown);
                     }
@@ -252,35 +253,28 @@ namespace TerminalChess
         /// </summary>
         public void Turn()
         {
-            bool validCommand = false;
+            // Take the turn input
+            string turn = Console.ReadLine();
+            turn = turn.ToUpper();
 
-            while (!validCommand)
+            // Regex pattern to match
+            string movePattern = "^[A-H][1-8]TO[A-H][1-8]";
+            Regex moveRegex = new(movePattern, RegexOptions.IgnoreCase);
+
+            // Move matches the regex
+            if (!moveRegex.IsMatch(turn))
             {
-                // Take the turn input
-                string turn = Console.ReadLine();
-                turn = turn.ToUpper();
-
-                // Regex pattern to match
-                string movePattern = "^[A-H][1-8]TO[A-H][1-8]";
-                Regex moveRegex = new(movePattern, RegexOptions.IgnoreCase);
-
-                // Move matches the regex
-                if (moveRegex.IsMatch(turn))
-                {
-                    // Check if the user is intending to castle this turn
-                    CheckCastling(turn);
-
-                    // Validate the turn string against the game rules
-                    validCommand = ValidateTurn(turn);
-
-                    castling = Castling.NOT_CASTLING;
-                }
-
-                if (!validCommand)
-                {
-                    Console.WriteLine("Invalid command. Try again:");
-                }
+                throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
             }
+
+            // Check if the user is intending to castle this turn
+            CheckCastling(turn);
+
+            // Validate the turn string against the game rules
+            ValidateTurn(turn);
+
+            castling = Castling.NOT_CASTLING;
+
 
             // Check for checkmate
             if (IsOpponentCheckmated())
@@ -321,14 +315,13 @@ namespace TerminalChess
             OpponentPlayer = (CurrentPlayer == p1) ? p2 : p1;
 
             TurnNo++;
-            return;
         }
 
         /// <summary>
         /// Takes a valid turn string and checks if it is a legal chess move
         /// </summary>
         /// <param name="turn"></param>
-        private bool ValidateTurn(string turn)
+        private void ValidateTurn(string turn)
         {
             bool pieceCaptured = false;
 
@@ -344,9 +337,9 @@ namespace TerminalChess
             Square curSquare = GetSquareAtPos(moveFromRow, movefromCol);
 
             //Check the player has selected a square that contains a piece
-            if(curSquare.piece == null){
-                Console.WriteLine("There is no piece in the selected square.");
-                return false;
+            if (curSquare.piece == null)
+            {
+                throw new ChessException(CHESS_EXCEPTION_TYPE.NO_PIECE);
             }
 
             // Check the player has selected the correct colour piece
@@ -354,16 +347,14 @@ namespace TerminalChess
             {
                 if (curSquare.piece.colour != Piece.Colour.White)
                 {
-                    Console.WriteLine("That is your opponents piece!");
-                    return false;
+                    throw new ChessException(CHESS_EXCEPTION_TYPE.OPPONENTS_PIECE);
                 }
             }
             else
             {
                 if (curSquare.piece.colour != Piece.Colour.Black)
                 {
-                    Console.WriteLine("That is your opponents piece!");
-                    return false;
+                    throw new ChessException(CHESS_EXCEPTION_TYPE.OPPONENTS_PIECE);
                 }
             }
 
@@ -372,8 +363,7 @@ namespace TerminalChess
 
             if (!IsMoveValid(validMoves, moveToRow, moveToCol))
             {
-                Console.WriteLine("Move not found in possible moves");
-                return false;
+                throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
             }
 
             // Get the destination square
@@ -411,12 +401,9 @@ namespace TerminalChess
             }
 
             // Validate castling
-            if(castling != Castling.NOT_CASTLING)
+            if (castling != Castling.NOT_CASTLING)
             {
-                if (!DoCastle(curSquare))
-                {
-                    return false;
-                }
+                DoCastle(curSquare);
             }
 
             // Update the moved pieces position
@@ -439,8 +426,7 @@ namespace TerminalChess
                 // Reset the board state
                 UndoMove(newSquare, curSquare, backupNewSquare, backupCurSquare, pieceCaptured);
 
-                Console.WriteLine("You cannot end your turn in check");
-                return false;
+                throw new ChessException(CHESS_EXCEPTION_TYPE.END_IN_CHECK);
             }
 
             // Update double move bool for purposes of en passent
@@ -495,10 +481,16 @@ namespace TerminalChess
             {
                 consecutiveMovesWithoutCapture++;
             }
-
-            return true;
         }
 
+        /// <summary>
+        /// Roll back a move
+        /// </summary>
+        /// <param name="newSquare"></param>
+        /// <param name="curSquare"></param>
+        /// <param name="backupNewSquare"></param>
+        /// <param name="backupCurSquare"></param>
+        /// <param name="pieceCaptured"></param>
         private void UndoMove(Square newSquare, Square curSquare, Square backupNewSquare, Square backupCurSquare, bool pieceCaptured)
         {
             // Restore the state of the moved pieces
@@ -562,7 +554,7 @@ namespace TerminalChess
         /// </summary>
         /// <param name="curSquare"></param>
         /// <returns></returns>
-        private bool DoCastle(Square curSquare)
+        private void DoCastle(Square curSquare)
         {
             // Check that the player is not trying to castle through check
             switch (castling)
@@ -577,8 +569,7 @@ namespace TerminalChess
                         curSquare.piece = f1.piece;
                         f1.piece = null;
 
-                        Console.WriteLine("You cannot castle through check");
-                        return false;
+                        throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK);
                     }
 
                     curSquare.piece = f1.piece;
@@ -596,8 +587,7 @@ namespace TerminalChess
                         {
                             curSquare.piece = moveThroughSquare.piece;
                             moveThroughSquare.piece = null;
-                            Console.WriteLine("You cannot castle through check");
-                            return false;
+                            throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK);
                         }
 
                         curSquare.piece = moveThroughSquare.piece;
@@ -609,14 +599,12 @@ namespace TerminalChess
                     Square f8 = GetSquareAtPos(7, 5);
                     f8.piece = curSquare.piece;
                     curSquare.piece = null;
-                        
+
                     if (IsPlayerInCheck(CurrentPlayer))
                     {
                         curSquare.piece = f8.piece;
                         f8.piece = null;
-
-                        Console.WriteLine("You cannot castle through check");
-                        return false;
+                        throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK);
                     }
 
                     curSquare.piece = f8.piece;
@@ -634,8 +622,7 @@ namespace TerminalChess
                         {
                             curSquare.piece = moveThroughSquare.piece;
                             moveThroughSquare.piece = null;
-                            Console.WriteLine("You cannot castle through check");
-                            return false;
+                            throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK);
                         }
 
                         curSquare.piece = moveThroughSquare.piece;
@@ -643,8 +630,6 @@ namespace TerminalChess
                     }
                     break;
             }
-
-            return true;
         }
 
         private void DoPromotion(Square square, string promotionSelection)
@@ -680,7 +665,7 @@ namespace TerminalChess
         /// <param name="moveToRow"></param>
         /// <param name="moveToCol"></param>
         /// <returns></returns>
-        private bool IsMoveValid(List<(int,int)>validMoves, int moveToRow, int moveToCol)
+        private bool IsMoveValid(List<(int, int)> validMoves, int moveToRow, int moveToCol)
         {
             foreach (var entry in validMoves)
             {
@@ -768,29 +753,29 @@ namespace TerminalChess
 
             // Loop through the board and check every enemy piece to see if they are currently attacking the king
             foreach (Square s in board)
+            {
+                if (s.piece != null)
                 {
-                    if (s.piece != null)
+                    if (s.piece.colour != colour)
                     {
-                        if (s.piece.colour != colour)
+                        foreach (var entry in s.piece.GetPossibleMoves(s.row, s.col, this))
                         {
-                            foreach (var entry in s.piece.GetPossibleMoves(s.row, s.col, this))
+                            int validRow = entry.Item1;
+                            int validCol = entry.Item2;
+
+                            Square tmpSquare = GetSquareAtPos(validRow, validCol);
+
+                            if (tmpSquare.piece != null)
                             {
-                                int validRow = entry.Item1;
-                                int validCol = entry.Item2;
-
-                                Square tmpSquare = GetSquareAtPos(validRow, validCol);
-
-                                if (tmpSquare.piece != null)
+                                if (tmpSquare.piece.Name.Contains("K"))
                                 {
-                                    if (tmpSquare.piece.Name.Contains("K"))
-                                    {
-                                        return true;
-                                    }
+                                    return true;
                                 }
                             }
                         }
                     }
                 }
+            }
             return false;
         }
 
@@ -842,7 +827,7 @@ namespace TerminalChess
                     }
                 }
             }
-            
+
             // Opponent has been checkmated
             return true;
         }
@@ -864,7 +849,7 @@ namespace TerminalChess
             // Find the opponents king 
             foreach (Square square in board)
             {
-                if (square.piece != null && square.piece.colour == colour )
+                if (square.piece != null && square.piece.colour == colour)
                 {
                     // Obtain valid moves for the piece
                     List<(int, int)> validMoves = square.piece.GetPossibleMoves(square.row, square.col, this);
