@@ -6,43 +6,55 @@ GameEngine ge;
 // Print terminal chess title
 utils.Print(utils.welcome);
 
-// Print main menu
-utils.Print(utils.mainMenu);
+string menuSelection = "";
 
-// Take the menu response
-string menuSelection = utils.GetMenuSelection(Utils.MENU_TYPES.MAIN);
-
-// Start a new game
-if (menuSelection == "0")
+while (menuSelection != "1")
 {
-    Console.WriteLine("\nEnter player 1 name:");
-    string p1Name = Console.ReadLine();
+    // Print main menu
+    utils.Print(utils.mainMenu);
 
-    Console.WriteLine("Enter player 2 name:");
-    string p2Name = Console.ReadLine();
+    // Take the menu response
+    menuSelection = utils.GetMenuSelection(Utils.MENU_TYPES.MAIN);
 
-    Console.WriteLine();
-
-    Player p1 = new(p1Name);
-    Player p2 = new(p2Name);
-    bool gameOver = false;
-    ge = new(p1, p2);
-
-    while (!gameOver)
+    // Start a new game
+    if (menuSelection == "0")
     {
-        try
+        utils.Print("\nEnter player 1 name:");
+        string p1Name = Console.ReadLine();
+
+        utils.Print("Enter player 2 name:");
+        string p2Name = Console.ReadLine();
+
+        utils.Print("");
+
+        Player p1 = new(p1Name);
+        Player p2 = new(p2Name);
+        bool gameOver = false;
+        ge = new(p1, p2);
+
+        while (!gameOver)
         {
-            gameOver = Play(ge);
-        }
-        catch (ChessException e)
-        {
-            utils.Print(e.Message);
-            continue;
+            try
+            {
+                gameOver = Play(ge);
+            }
+            catch (ChessException e)
+            {
+                utils.Print(e.Message);
+                continue;
+            }
         }
     }
-
-    utils.Print(utils.gameOverMenu);
-    var selection = utils.GetMenuSelection(Utils.MENU_TYPES.GAME_OVER);
+    // Exit
+    else if(menuSelection == "1")
+    {
+        utils.Print(utils.goodbye);
+    }
+    // Credits
+    else if(menuSelection == "2")
+    {
+        utils.Print(utils.credits);
+    }
 }
 
 /// <summary>
@@ -69,7 +81,7 @@ bool Play(GameEngine ge)
     {
         return false;
     }
-    else if(ge.p1.Winner && ge.p2.Winner)
+    else if (ge.p1.Winner && ge.p2.Winner)
     {
         view = ge.View();
         utils.Print(view);

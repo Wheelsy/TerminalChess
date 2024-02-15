@@ -248,6 +248,46 @@ namespace TerminalChess
         }
 
         /// <summary>
+        /// In game Options menu
+        /// </summary>
+        private void Options()
+        {
+            utils.Print(utils.optionsMenu);
+            string optionsSelection = utils.GetMenuSelection(Utils.MENU_TYPES.OPTIONS);
+
+            while (!optionsSelection.Equals("0") && !optionsSelection.Equals("1") && !optionsSelection.Equals("2") && !optionsSelection.Equals("3"))
+            {
+                optionsSelection = utils.GetMenuSelection(Utils.MENU_TYPES.OPTIONS);
+            }
+
+            switch (optionsSelection)
+            {
+                case "0":
+                    utils.Print("Are both player sure they want to end the game in a draw?(y/n)");
+                    string response = utils.GetInput();
+
+                    while (response.ToUpper() != "Y" && response.ToUpper() != "N")
+                    {
+                        utils.Print("Invalid response!");
+                        response = utils.GetInput();
+                    }
+
+                    if (response.ToUpper() == "Y")
+                    {
+                        p1.Winner = true;
+                        p2.Winner = true;
+                    }
+                    break;
+                case "1":
+                    break;
+                case "2":
+                    break;
+                case "3":
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Moves a piece based on the inputted move command.
         /// Checks the move input against a regex pattern.
         /// </summary>
@@ -264,7 +304,15 @@ namespace TerminalChess
             // Move matches the regex
             if (!moveRegex.IsMatch(turn))
             {
-                throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
+                if (turn == "O")
+                {
+                    Options();
+                    return;
+                }
+                else
+                {
+                    throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
+                }
             }
 
             // Check if the user is intending to castle this turn
