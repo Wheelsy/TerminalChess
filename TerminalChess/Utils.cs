@@ -22,25 +22,24 @@ namespace TerminalChess
             """
             ----MAIN MENU----
             [0] New game
-            [1] Load game
-            [2] Exit application
-            [3] Credits
+            [1] Exit application
+            [2] Credits
 
+            """;
+
+        public string credits = """
+
+            Created by Ely Hawkins
+            Email: elyh117@gmail.com
+            
             """;
 
         public string optionsMenu =
             """
             ----OPTIONS----
-            [0] Save game
-            [1] Exit game
-
-            """;
-
-        public string gameOverMenu =
-            """
-            ----GAME OVER----
-            [0] Menu
-            [1] Exit application
+            [0] Draw
+            [1] Concede
+            [2] Back
 
             """;
 
@@ -52,13 +51,12 @@ namespace TerminalChess
 
         public string inputPrompt = ">";
 
-        public string goodbye = "Goodbye =]";
+        public string goodbye = "\nGoodbye =]";
 
         public enum MENU_TYPES {
             MAIN = 0,
             OPTIONS = 1,
-            GAME_OVER = 2,
-            PROMOTION = 3
+            PROMOTION = 2
         };
 
         /// <summary>
@@ -88,33 +86,16 @@ namespace TerminalChess
                 switch (menuType)
                 {
                     case MENU_TYPES.MAIN:
-                        if(tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2") || tmp.Equals("3"))
+                        if(tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2"))
                         {
                             return tmp;
                         }
-                        else
-                        {
-                            tmp = null;
-                        }
                         break;
                     case MENU_TYPES.OPTIONS:
-                        // SAVE THE CURRENT GAME
-                        if (tmp.Equals("0"))
+                        // Return the options option selected
+                        if (tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2") || tmp.Equals("3"))
                         {
-                        }
-                        // EXIT THE CURRENT GAME
-                        else if (tmp.Equals("1"))
-                        {
-                        }
-                        break;
-                    case MENU_TYPES.GAME_OVER:
-                        // RETURN TO MAIN MENU
-                        if (tmp.Equals("0"))
-                        {
-                        }
-                        // EXIT THE APPLICATION
-                        else if (tmp.Equals("1"))
-                        {
+                            return tmp;
                         }
                         break;
                     case MENU_TYPES.PROMOTION:
@@ -122,10 +103,6 @@ namespace TerminalChess
                         if (tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2") || tmp.Equals("3"))
                         {
                             return tmp;
-                        }
-                        else
-                        {
-                            tmp = null;
                         }
                         break;
                     // Wrong input. Restart the loop
@@ -136,6 +113,13 @@ namespace TerminalChess
                 Print("Invalid input! Try again:");
             }
             return null;
+        }
+
+        public string GetInput()
+        {
+            Console.Write(inputPrompt);
+            string tmp = Console.ReadLine();
+            return tmp;
         }
     }
 }

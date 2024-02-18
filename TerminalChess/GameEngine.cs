@@ -201,7 +201,7 @@ namespace TerminalChess
             // Iterate over every square and print the piece name as well as "|" deviders between squares
             for (int row = 0; row < rows; row++)
             {
-                view += yAxis.ToString();
+                view += yAxis.ToString(); // Numbered axis
                 view += "|"; // Start of the row
 
                 for (int col = 0; col < cols; col++)
@@ -220,6 +220,7 @@ namespace TerminalChess
                 }
 
                 string tmp = "";
+                // Add captured pieces
                 if (row == 0)
                 {
                     foreach (string piece in p2.capturedPieces)
@@ -242,9 +243,74 @@ namespace TerminalChess
                 yAxis--;
             }
 
-            view += "  A B C D E F G H\n";
+            view += "  A B C D E F G H\n"; // X axis
 
             return view;
+        }
+
+        /// <summary>
+        /// In game options menu
+        /// </summary>
+        /// <returns>False if the game is ended. True if game continues</returns>
+        private bool Options()
+        {
+            // Print menu and get response
+            utils.Print(utils.optionsMenu);
+            string optionsSelection = utils.GetMenuSelection(Utils.MENU_TYPES.OPTIONS);
+
+            // Validate selection
+            while (!optionsSelection.Equals("0") && !optionsSelection.Equals("1") && !optionsSelection.Equals("2") && !optionsSelection.Equals("3"))
+            {
+                utils.Print("Invalid response. Try again:");
+                optionsSelection = utils.GetMenuSelection(Utils.MENU_TYPES.OPTIONS);
+            }
+
+            // Selection logic
+            switch (optionsSelection)
+            {
+                // Stalemate
+                case "0":
+                    utils.Print("Are both player sure they want to end the game in a draw?(y/n)");
+                    string response1 = utils.GetInput();
+
+                    while (response1.ToUpper() != "Y" && response1.ToUpper() != "N")
+                    {
+                        utils.Print("Invalid response!");
+                        response1 = utils.GetInput();
+                    }
+
+                    if (response1.ToUpper() == "Y")
+                    {
+                        p1.Winner = true;
+                        p2.Winner = true;
+                        return false;
+                    }
+                    break;
+                // Concede
+                case "1":
+                    utils.Print("Are you sure you want to concede?(y/n)");
+                    string response2 = utils.GetInput();
+
+                    while (response2.ToUpper() != "Y" && response2.ToUpper() != "N")
+                    {
+                        utils.Print("Invalid response!");
+                        response2 = utils.GetInput();
+                    }
+
+                    if (response2.ToUpper() == "Y")
+                    {
+                        OpponentPlayer.Winner = true;
+                        return false;
+                    }
+                    break;
+                // Back
+                case "2":
+                    return true;
+                default:
+                    utils.Print("Option not recognised!");
+                    break;
+            }
+            return true;
         }
 
         /// <summary>
@@ -264,7 +330,15 @@ namespace TerminalChess
             // Move matches the regex
             if (!moveRegex.IsMatch(turn))
             {
-                throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
+                if (turn == "O")
+                {
+                    Options();
+                    return;
+                }
+                else
+                {
+                    throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
+                }
             }
 
             // Check if the user is intending to castle this turn
