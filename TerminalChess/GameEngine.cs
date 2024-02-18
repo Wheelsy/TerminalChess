@@ -912,10 +912,29 @@ namespace TerminalChess
         /// <returns>True if stalemate. False if not</returns>
         private bool CheckStalemate()
         {
-
+            // Repetition & consecutive moves without capture
             if (repetitions >= 3 || consecutiveMovesWithoutCapture >= 100)
             {
                 return true;
+            }
+
+            // Dead position
+            var remainingPieces = GetRemainingPieces();
+
+            // If the position is King v King or King + Bishop/Knight v King the game is drawn
+            if(remainingPieces.Count() == 2)
+            {
+                return true;
+            }
+            else if(remainingPieces.Count() == 3)
+            {
+                foreach( var piece in remainingPieces)
+                {
+                    if(piece is Knight || piece is Bishop)
+                    {
+                        return true;
+                    }
+                }
             }
 
             var colour = (CurrentPlayer == p1) ? Piece.Colour.Black : Piece.Colour.White;
@@ -981,6 +1000,24 @@ namespace TerminalChess
                 if (p2BoardStates.Count > 3)
                     p2BoardStates.RemoveAt(0);
             }
+        }
+
+        /// <summary>
+        /// Find and return all remaining pieces on the board
+        /// </summary>
+        /// <returns></returns>
+        private List<Piece> GetRemainingPieces()
+        {
+            List<Piece> remainingPieces = new List<Piece>();
+
+            foreach (Square square in board)
+            {
+                if(square.piece != null){
+                    remainingPieces.Add(square.piece);
+                }
+            }
+
+            return remainingPieces;
         }
     }
 }
