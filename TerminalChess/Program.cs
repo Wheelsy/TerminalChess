@@ -94,7 +94,7 @@ bool Play(GameEngine ge)
         utils.Print(view);
         string winner = (ge.p1.Winner) ? ge.p1.username : ge.p2.username;
         string Loser = (ge.p1.Winner) ? ge.p2.username : ge.p1.username;
-        utils.Print($"\n{Loser} has been checkmated. {winner} wins!\n");
+        utils.Print($"\n{Loser} has been defeated. {winner} wins!\n");
     }
 
     return true;

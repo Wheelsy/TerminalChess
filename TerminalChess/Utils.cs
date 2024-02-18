@@ -40,7 +40,6 @@ namespace TerminalChess
             [0] Draw
             [1] Concede
             [2] Back
-            [3] Exit game
 
             """;
 
