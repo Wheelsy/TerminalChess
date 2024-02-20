@@ -320,8 +320,17 @@ namespace TerminalChess
         public void Turn()
         {
             // Take the turn input
-            string turn = Console.ReadLine();
-            turn = turn.ToUpper();
+            string turn = "";
+
+            if (!CurrentPlayer.IsAI)
+            {
+                turn = Console.ReadLine();
+                turn = turn.ToUpper();
+            }
+            else
+            {
+
+            }
 
             // Regex pattern to match
             string movePattern = "^[A-H][1-8]TO[A-H][1-8]";

@@ -13,17 +13,19 @@ namespace TerminalChess
         public int Score { get; set; }
         public List<string> capturedPieces;
         public bool InCheck { get; set; }
+        public bool IsAI { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="username"></param>
-        public Player(string username) { 
+        public Player(string username, bool isAI) { 
             this.username = username;
             this.Winner = false;
             this.Score = 0;
             capturedPieces = new();
             InCheck = false;
+            this.IsAI = isAI;
         }
     }
 }

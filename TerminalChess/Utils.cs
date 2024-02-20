@@ -27,6 +27,15 @@ namespace TerminalChess
 
             """;
 
+        public string newGameMenu =
+            """
+            ----NEW GAME----
+            [0] 2P
+            [1] Vs AI
+            [2] Back
+
+            """;
+
         public string credits = """
 
             Created by Ely Hawkins
@@ -56,7 +65,8 @@ namespace TerminalChess
         public enum MENU_TYPES {
             MAIN = 0,
             OPTIONS = 1,
-            PROMOTION = 2
+            PROMOTION = 2,
+            NEW_GAME = 3
         };
 
         /// <summary>
