@@ -27,12 +27,13 @@ namespace TerminalChess
         private Castling castling;
         private int cols = 8;
         private int rows = 8;
-        private List<Square> board = new();
-        private Utils utils;
+        private Board board = new();
+        private Utils utils = new();
         private List<string> p1BoardStates = new List<string>();
         private List<string> p2BoardStates = new List<string>();
         private int repetitions = 0;
         private int consecutiveMovesWithoutCapture = 0;
+        private AI ai = new();
 
         public Player p1 { get; }
         public Player p2 { get; }
@@ -53,139 +54,12 @@ namespace TerminalChess
             TurnNo = 1;
             CurrentPlayer = p1;
             OpponentPlayer = p2;
-            utils = new();
-
-            AddPiecesToBoard();
+            board.AddPiecesToBoard();
         }
 
         public GameEngine()
         {
             TurnNo = 1;
-        }
-
-        /// <summary>
-        /// Add all pieces in their starting position to the board
-        /// </summary>
-        public void AddPiecesToBoard()
-        {
-            // Iterate through column
-            for (int k = cols - 1; k >= 0; k--)
-            {
-                // Iterate through rows
-                for (int i = 0; i < rows; i++)
-                {
-                    // First column
-                    if (k == 0)
-                    {
-                        // Rook rows
-                        if (i == 0 || i == 7)
-                        {
-                            Rook rook = new(Piece.Colour.White);
-                            Square sqr = new(i, k, rook);
-                            sqr.piece = rook;
-                            board.Add(sqr);
-                        }
-                        // Knight rows
-                        else if (i == 1 || i == 6)
-                        {
-                            Knight knight = new(Piece.Colour.White);
-                            Square sqr = new(i, k, knight);
-                            sqr.piece = knight;
-                            board.Add(sqr);
-                        }
-                        // Bishop rows
-                        else if (i == 2 || i == 5)
-                        {
-                            Bishop bishop = new(Piece.Colour.White);
-                            Square sqr = new(i, k, bishop);
-                            sqr.piece = bishop;
-                            board.Add(sqr);
-                        }
-                        // Queen row
-                        else if (i == 3)
-                        {
-                            Queen queen = new(Piece.Colour.White);
-                            Square sqr = new(i, k, queen);
-                            sqr.piece = queen;
-                            board.Add(sqr);
-                        }
-                        // King row
-                        else if (i == 4)
-                        {
-                            King king = new(Piece.Colour.White);
-                            Square sqr = new(i, k, king);
-                            sqr.piece = king;
-                            board.Add(sqr);
-                        }
-                    }
-                    // Second column (pawns)
-                    else if (k == 1)
-                    {
-                        Pawn pawn = new(Piece.Colour.White);
-                        Square sqr = new(i, k, pawn);
-                        sqr.piece = pawn;
-                        board.Add(sqr);
-                    }
-                    // Seventh column (pawns)
-                    else if (k == 6)
-                    {
-                        Pawn pawn = new(Piece.Colour.Black);
-                        Square sqr = new(i, k, pawn);
-                        sqr.piece = pawn;
-                        board.Add(sqr);
-                    }
-                    // Eighth column
-                    else if (k == 7)
-                    {
-                        // Rook rows
-                        if (i == 0 || i == 7)
-                        {
-                            Rook rook = new(Piece.Colour.Black);
-                            Square sqr = new(i, k, rook);
-                            sqr.piece = rook;
-                            board.Add(sqr);
-                        }
-                        // Knight rows
-                        else if (i == 1 || i == 6)
-                        {
-                            Knight knight = new(Piece.Colour.Black);
-                            Square sqr = new(i, k, knight);
-                            sqr.piece = knight;
-                            board.Add(sqr);
-                        }
-                        // Bishop rows
-                        else if (i == 2 || i == 5)
-                        {
-                            Bishop bishop = new(Piece.Colour.Black);
-                            Square sqr = new(i, k, bishop);
-                            sqr.piece = bishop;
-                            board.Add(sqr);
-                        }
-                        // Queen row
-                        else if (i == 3)
-                        {
-                            Queen queen = new(Piece.Colour.Black);
-                            Square sqr = new(i, k, queen);
-                            sqr.piece = queen;
-                            board.Add(sqr);
-                        }
-                        // King row
-                        else if (i == 4)
-                        {
-                            King king = new(Piece.Colour.Black);
-                            Square sqr = new(i, k, king);
-                            sqr.piece = king;
-                            board.Add(sqr);
-                        }
-                    }
-                    // All other squares are empty and are added with a NULL piece
-                    else
-                    {
-                        Square sqr = new(i, k, null);
-                        board.Add(sqr);
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -208,13 +82,13 @@ namespace TerminalChess
                 {
                     int index = row * cols + col;
 
-                    if (board[index].piece == null)
+                    if (board.GetSquareAtIndex(index).piece == null)
                     {
                         view += " |"; // Square border
                     }
                     else
                     {
-                        view += $"{board[index].piece.Name}"; // Piece
+                        view += $"{board.GetSquareAtIndex(index).piece.Name}"; // Piece
                         view += "|"; // Square border
                     }
                 }
@@ -322,39 +196,40 @@ namespace TerminalChess
             // Take the turn input
             string turn = "";
 
-            if (!CurrentPlayer.IsAI)
+            if (CurrentPlayer.IsAI)
             {
-                turn = Console.ReadLine();
-                turn = turn.ToUpper();
+                ai.GenerateBestMove(this, board, CurrentPlayer.Colour, OpponentPlayer);
             }
             else
             {
+                turn = Console.ReadLine();
+                turn = turn.ToUpper();
 
-            }
 
-            // Regex pattern to match
-            string movePattern = "^[A-H][1-8]TO[A-H][1-8]";
-            Regex moveRegex = new(movePattern, RegexOptions.IgnoreCase);
+                // Regex pattern to match
+                string movePattern = "^[A-H][1-8]TO[A-H][1-8]";
+                Regex moveRegex = new(movePattern, RegexOptions.IgnoreCase);
 
-            // Move matches the regex
-            if (!moveRegex.IsMatch(turn))
-            {
-                if (turn == "O")
+                // Move matches the regex
+                if (!moveRegex.IsMatch(turn))
                 {
-                    Options();
-                    return;
+                    if (turn == "O")
+                    {
+                        Options();
+                        return;
+                    }
+                    else
+                    {
+                        throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
+                    }
                 }
-                else
-                {
-                    throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
-                }
+
+                // Check if the user is intending to castle this turn
+                CheckCastling(turn);
+
+                // Validate the turn string against the game rules
+                ValidateTurn(turn);
             }
-
-            // Check if the user is intending to castle this turn
-            CheckCastling(turn);
-
-            // Validate the turn string against the game rules
-            ValidateTurn(turn);
 
             castling = Castling.NOT_CASTLING;
 
@@ -404,7 +279,7 @@ namespace TerminalChess
         /// Takes a valid turn string and checks if it is a legal chess move
         /// </summary>
         /// <param name="turn"></param>
-        private void ValidateTurn(string turn)
+        public void ValidateTurn(string turn)
         {
             bool pieceCaptured = false;
 
@@ -417,7 +292,7 @@ namespace TerminalChess
             int moveToCol = ParseCoordinates(turn[4]);
 
             // Get the starting square
-            Square curSquare = GetSquareAtPos(moveFromRow, movefromCol);
+            Square curSquare = board.GetSquareAtPos(moveFromRow, movefromCol);
 
             //Check the player has selected a square that contains a piece
             if (curSquare.piece == null)
@@ -426,23 +301,13 @@ namespace TerminalChess
             }
 
             // Check the player has selected the correct colour piece
-            if (CurrentPlayer == p1)
+            if (CurrentPlayer.Colour != curSquare.piece.colour)
             {
-                if (curSquare.piece.colour != Piece.Colour.White)
-                {
-                    throw new ChessException(CHESS_EXCEPTION_TYPE.OPPONENTS_PIECE);
-                }
-            }
-            else
-            {
-                if (curSquare.piece.colour != Piece.Colour.Black)
-                {
-                    throw new ChessException(CHESS_EXCEPTION_TYPE.OPPONENTS_PIECE);
-                }
+               throw new ChessException(CHESS_EXCEPTION_TYPE.OPPONENTS_PIECE); 
             }
 
             // Check if the proposed move is found in the list of possible moves
-            List<(int, int)> validMoves = curSquare.piece.GetPossibleMoves(moveFromRow, movefromCol, this);
+            List<(int, int)> validMoves = curSquare.piece.GetPossibleMoves(moveFromRow, movefromCol, board);
 
             if (!IsMoveValid(validMoves, moveToRow, moveToCol))
             {
@@ -450,7 +315,7 @@ namespace TerminalChess
             }
 
             // Get the destination square
-            Square newSquare = GetSquareAtPos(moveToRow, moveToCol);
+            Square newSquare = board.GetSquareAtPos(moveToRow, moveToCol);
 
             // Store the state of the salient pieces incase the move is determined invalid and the board state needs resetting
             Square backupCurSquare = new(curSquare.row, curSquare.col, curSquare.piece);
@@ -459,6 +324,11 @@ namespace TerminalChess
 
             if (newSquare.piece != null)
             {
+                if (newSquare.piece.colour == CurrentPlayer.Colour)
+                {
+                    throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
+                }
+
                 backupNewSquare.piece.HasMoved = newSquare.piece.HasMoved;
             }
 
@@ -468,7 +338,7 @@ namespace TerminalChess
                 if (newSquare.piece == null)
                 {
                     pieceCaptured = true;
-                    Square s = GetSquareAtPos(pawn.EPCapture.Item1, pawn.EPCapture.Item2);
+                    Square s = board.GetSquareAtPos(pawn.EPCapture.Item1, pawn.EPCapture.Item2);
                     CurrentPlayer.capturedPieces.Add(s.piece.Name);
                     CurrentPlayer.Score += pawn.Value;
                     s.piece = null;
@@ -528,23 +398,23 @@ namespace TerminalChess
                 switch (castling)
                 {
                     case Castling.W_KING_SIDE:
-                        GetSquareAtPos(0, 5).piece = GetSquareAtPos(0, 7).piece;
-                        GetSquareAtPos(0, 7).piece = null;
+                        board.GetSquareAtPos(0, 5).piece = board.GetSquareAtPos(0, 7).piece;
+                        board.GetSquareAtPos(0, 7).piece = null;
                         break;
 
                     case Castling.W_QUEEN_SIDE:
-                        GetSquareAtPos(0, 3).piece = GetSquareAtPos(0, 0).piece;
-                        GetSquareAtPos(0, 0).piece = null;
+                        board.GetSquareAtPos(0, 3).piece = board.GetSquareAtPos(0, 0).piece;
+                        board.GetSquareAtPos(0, 0).piece = null;
                         break;
 
                     case Castling.B_KING_SIDE:
-                        GetSquareAtPos(7, 5).piece = GetSquareAtPos(7, 7).piece;
-                        GetSquareAtPos(7, 7).piece = null;
+                        board.GetSquareAtPos(7, 5).piece = board.GetSquareAtPos(7, 7).piece;
+                        board.GetSquareAtPos(7, 7).piece = null;
                         break;
 
                     case Castling.B_QUEEN_SIDE:
-                        GetSquareAtPos(7, 3).piece = GetSquareAtPos(7, 0).piece;
-                        GetSquareAtPos(7, 0).piece = null;
+                        board.GetSquareAtPos(7, 3).piece = board.GetSquareAtPos(7, 0).piece;
+                        board.GetSquareAtPos(7, 0).piece = null;
                         break;
                 }
             }
@@ -574,7 +444,7 @@ namespace TerminalChess
         /// <param name="backupNewSquare"></param>
         /// <param name="backupCurSquare"></param>
         /// <param name="pieceCaptured"></param>
-        private void UndoMove(Square newSquare, Square curSquare, Square backupNewSquare, Square backupCurSquare, bool pieceCaptured)
+        public void UndoMove(Square newSquare, Square curSquare, Square backupNewSquare, Square backupCurSquare, bool pieceCaptured)
         {
             // Restore the state of the moved pieces
             curSquare.piece = backupCurSquare.piece;
@@ -608,7 +478,7 @@ namespace TerminalChess
         /// know the players intention.
         /// </summary>
         /// <param name="turn"></param>
-        private void CheckCastling(string turn)
+        public void CheckCastling(string turn)
         {
             switch (turn)
             {
@@ -643,7 +513,7 @@ namespace TerminalChess
             switch (castling)
             {
                 case Castling.W_KING_SIDE:
-                    Square f1 = GetSquareAtPos(0, 5);
+                    Square f1 = board.GetSquareAtPos(0, 5);
                     f1.piece = curSquare.piece;
                     curSquare.piece = null;
 
@@ -662,7 +532,7 @@ namespace TerminalChess
                 case Castling.W_QUEEN_SIDE:
                     for (int i = 1; i < 3; i++)
                     {
-                        Square moveThroughSquare = GetSquareAtPos(0, curSquare.col - i);
+                        Square moveThroughSquare = board.GetSquareAtPos(0, curSquare.col - i);
                         moveThroughSquare.piece = curSquare.piece;
                         curSquare.piece = null;
 
@@ -679,7 +549,7 @@ namespace TerminalChess
                     break;
 
                 case Castling.B_KING_SIDE:
-                    Square f8 = GetSquareAtPos(7, 5);
+                    Square f8 = board.GetSquareAtPos(7, 5);
                     f8.piece = curSquare.piece;
                     curSquare.piece = null;
 
@@ -697,7 +567,7 @@ namespace TerminalChess
                 case Castling.B_QUEEN_SIDE:
                     for (int i = 1; i < 3; i++)
                     {
-                        Square moveThroughSquare = GetSquareAtPos(7, curSquare.col - i);
+                        Square moveThroughSquare = board.GetSquareAtPos(7, curSquare.col - i);
                         moveThroughSquare.piece = curSquare.piece;
                         curSquare.piece = null;
 
@@ -715,26 +585,29 @@ namespace TerminalChess
             }
         }
 
+        /// <summary>
+        /// Promote a pawn to a new piece
+        /// </summary>
+        /// <param name="square"></param>
+        /// <param name="promotionSelection"></param>
         private void DoPromotion(Square square, string promotionSelection)
         {
-            Colour colour = (CurrentPlayer == p1) ? Piece.Colour.White : Piece.Colour.Black;
-
             switch (promotionSelection)
             {
                 case "0":
-                    Knight knight = new(colour);
+                    Knight knight = new(CurrentPlayer.Colour);
                     square.piece = knight;
                     break;
                 case "1":
-                    Bishop bishop = new(colour);
+                    Bishop bishop = new(CurrentPlayer.Colour);
                     square.piece = bishop;
                     break;
                 case "2":
-                    Rook rook = new(colour);
+                    Rook rook = new(CurrentPlayer.Colour);
                     square.piece = rook;
                     break;
                 case "3":
-                    Queen queen = new(colour);
+                    Queen queen = new(CurrentPlayer.Colour);
                     square.piece = queen;
                     break;
             }
@@ -807,54 +680,29 @@ namespace TerminalChess
         }
 
         /// <summary>
-        /// Find the square at a given coordinate
-        /// </summary>
-        /// <param name="row"></param>
-        /// <param name="col"></param>
-        /// <returns></returns>
-        public Square GetSquareAtPos(int row, int col)
-        {
-            foreach (Square s in board)
-            {
-                if (s.col == col && s.row == row)
-                {
-                    return s;
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Returns true or false depending on if the player is currently in check or not
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
         public bool IsPlayerInCheck(Player p)
         {
-            var colour = (p == p1) ? Piece.Colour.White : Piece.Colour.Black;
+            // Check every enemy piece to see if they are currently attacking the king
+            var enemySquares = board.GetAllSquaresWithPiecesOfOneColour(OpponentPlayer.Colour);
 
-            // Loop through the board and check every enemy piece to see if they are currently attacking the king
-            foreach (Square s in board)
+            foreach (Square s in enemySquares)
             {
-                if (s.piece != null)
+                foreach (var entry in s.piece.GetPossibleMoves(s.row, s.col, board))
                 {
-                    if (s.piece.colour != colour)
+                    int validRow = entry.Item1;
+                    int validCol = entry.Item2;
+
+                    Square tmpSquare = board.GetSquareAtPos(validRow, validCol);
+
+                    if (tmpSquare.piece != null)
                     {
-                        foreach (var entry in s.piece.GetPossibleMoves(s.row, s.col, this))
+                        if (tmpSquare.piece is King)
                         {
-                            int validRow = entry.Item1;
-                            int validCol = entry.Item2;
-
-                            Square tmpSquare = GetSquareAtPos(validRow, validCol);
-
-                            if (tmpSquare.piece != null)
-                            {
-                                if (tmpSquare.piece.Name.Contains("K"))
-                                {
-                                    return true;
-                                }
-                            }
+                            return true;
                         }
                     }
                 }
@@ -864,8 +712,6 @@ namespace TerminalChess
 
         public bool IsOpponentCheckmated()
         {
-            var colour = (OpponentPlayer == p1) ? Piece.Colour.White : Piece.Colour.Black;
-
             // Check if the opponent player is in check
             if (!IsPlayerInCheck(OpponentPlayer))
             {
@@ -874,40 +720,36 @@ namespace TerminalChess
             }
 
             // Find the opponents king 
-            foreach (Square square in board)
+            Square kingSquare = board.GetSquareByPiece<King>(OpponentPlayer.Colour);
+
+            // Obtain valid moves for the king
+            List<(int, int)> validMoves = kingSquare.piece.GetPossibleMoves(kingSquare.row, kingSquare.col, board);
+
+            // Check each valid move
+            foreach (var move in validMoves)
             {
-                if (square.piece != null && square.piece.colour == colour && square.piece is King)
+                int moveToRow = move.Item1;
+                int moveToCol = move.Item2;
+
+                // Simulate the move
+                Square backupCurSquare = new Square(kingSquare.row, kingSquare.col, kingSquare.piece);
+                Square newSquare = board.GetSquareAtPos(moveToRow, moveToCol);
+                Square backupNewSquare = new Square(moveToRow, moveToCol, newSquare?.piece);
+
+                // Update the board state
+                newSquare.piece = kingSquare.piece;
+                kingSquare.piece = null;
+
+                // Check if the opponent is still in check after the move
+                bool isStillInCheck = IsPlayerInCheck(OpponentPlayer);
+
+                // Undo the move
+                UndoMove(newSquare, kingSquare, backupNewSquare, backupCurSquare, false);
+
+                // If the opponent is not in check after the move, they are not checkmated
+                if (!isStillInCheck)
                 {
-                    // Obtain valid moves for the king
-                    List<(int, int)> validMoves = square.piece.GetPossibleMoves(square.row, square.col, this);
-
-                    // Check each valid move
-                    foreach (var move in validMoves)
-                    {
-                        int moveToRow = move.Item1;
-                        int moveToCol = move.Item2;
-
-                        // Simulate the move
-                        Square backupCurSquare = new Square(square.row, square.col, square.piece);
-                        Square newSquare = GetSquareAtPos(moveToRow, moveToCol);
-                        Square backupNewSquare = new Square(moveToRow, moveToCol, newSquare?.piece);
-
-                        // Update the board state
-                        newSquare.piece = square.piece;
-                        square.piece = null;
-
-                        // Check if the opponent is still in check after the move
-                        bool isStillInCheck = IsPlayerInCheck(OpponentPlayer);
-
-                        // Undo the move
-                        UndoMove(newSquare, square, backupNewSquare, backupCurSquare, false);
-
-                        // If the opponent is not in check after the move, they are not checkmated
-                        if (!isStillInCheck)
-                        {
-                            return false;
-                        }
-                    }
+                    return false;
                 }
             }
 
@@ -919,70 +761,76 @@ namespace TerminalChess
         /// Check if requirements are met for a stalemate
         /// </summary>
         /// <returns>True if stalemate. False if not</returns>
-        private bool CheckStalemate()
+        public bool CheckStalemate()
         {
             // Repetition & consecutive moves without capture
             if (repetitions >= 3 || consecutiveMovesWithoutCapture >= 100)
             {
+                Console.WriteLine($"repetitions {repetitions}, consecutive moves without capture {consecutiveMovesWithoutCapture}");
                 return true;
             }
 
             // Dead position
-            var remainingPieces = GetRemainingPieces();
+            var remainingPieces = board.GetRemainingPieces();
 
             // If the position is King v King or King + Bishop/Knight v King the game is drawn
-            if(remainingPieces.Count() == 2)
+            if (remainingPieces.Count() == 2)
             {
+                Console.WriteLine("Dead position");
                 return true;
             }
-            else if(remainingPieces.Count() == 3)
+            else if (remainingPieces.Count() == 3)
             {
-                foreach( var piece in remainingPieces)
+                foreach (var piece in remainingPieces)
                 {
-                    if(piece is Knight || piece is Bishop)
+                    if (piece is Knight || piece is Bishop)
                     {
+                        Console.WriteLine("Dead position");
                         return true;
                     }
                 }
             }
 
-            var colour = (CurrentPlayer == p1) ? Piece.Colour.Black : Piece.Colour.White;
-
             // Find the opponents king 
-            foreach (Square square in board)
+            Square kingSquare = board.GetSquareByPiece<King>(OpponentPlayer.Colour);
+
+            // Obtain valid moves for the piece
+            List<(int, int)> validMoves = kingSquare.piece.GetPossibleMoves(kingSquare.row, kingSquare.col, board);
+
+            // Check each valid move
+            foreach (var move in validMoves)
             {
-                if (square.piece != null && square.piece.colour == colour)
+                int moveToRow = move.Item1;
+                int moveToCol = move.Item2;
+
+                // Simulate the move
+                Square backupCurSquare = new Square(kingSquare.row, kingSquare.col, kingSquare.piece);
+                Square newSquare = board.GetSquareAtPos(moveToRow, moveToCol);
+                Square backupNewSquare = new Square(moveToRow, moveToCol, newSquare?.piece);
+
+                // Update the board state
+                newSquare.piece = kingSquare.piece;
+                kingSquare.piece = null;
+
+                // Check if the opponent is in check after the move
+                bool isInCheck = IsPlayerInCheck(OpponentPlayer);
+
+                // Undo the move
+                UndoMove(newSquare, kingSquare, backupNewSquare, backupCurSquare, false);
+
+                // If the opponent is not in check after the move, no stalemate
+                if (!isInCheck)
                 {
-                    // Obtain valid moves for the piece
-                    List<(int, int)> validMoves = square.piece.GetPossibleMoves(square.row, square.col, this);
+                    return false;
+                }
+            }
 
-                    // Check each valid move
-                    foreach (var move in validMoves)
-                    {
-                        int moveToRow = move.Item1;
-                        int moveToCol = move.Item2;
-
-                        // Simulate the move
-                        Square backupCurSquare = new Square(square.row, square.col, square.piece);
-                        Square newSquare = GetSquareAtPos(moveToRow, moveToCol);
-                        Square backupNewSquare = new Square(moveToRow, moveToCol, newSquare?.piece);
-
-                        // Update the board state
-                        newSquare.piece = square.piece;
-                        square.piece = null;
-
-                        // Check if the opponent is in check after the move
-                        bool isInCheck = IsPlayerInCheck(OpponentPlayer);
-
-                        // Undo the move
-                        UndoMove(newSquare, square, backupNewSquare, backupCurSquare, false);
-
-                        // If the opponent is not in check after the move, no stalemate
-                        if (!isInCheck)
-                        {
-                            return false;
-                        }
-                    }
+            // Check if there are other pieces that can move
+            foreach (var square in board.GetAllSquaresWithPiecesOfOneColour(CurrentPlayer.Colour))
+            {
+                if (!(square.piece is King) && square.piece.GetPossibleMoves(square.row, square.col, board).Count() > 0)
+                {
+                    return false;
                 }
             }
 
@@ -1009,24 +857,6 @@ namespace TerminalChess
                 if (p2BoardStates.Count > 3)
                     p2BoardStates.RemoveAt(0);
             }
-        }
-
-        /// <summary>
-        /// Find and return all remaining pieces on the board
-        /// </summary>
-        /// <returns></returns>
-        private List<Piece> GetRemainingPieces()
-        {
-            List<Piece> remainingPieces = new List<Piece>();
-
-            foreach (Square square in board)
-            {
-                if(square.piece != null){
-                    remainingPieces.Add(square.piece);
-                }
-            }
-
-            return remainingPieces;
         }
     }
 }

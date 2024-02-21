@@ -23,12 +23,12 @@ namespace TerminalChess
         /// <summary>
         /// Overriden method to caluculate the legal moves for a Knight
         /// </summary>
-        protected override void CalculatePossibleMoves(int row, int col, GameEngine ge )
+        protected override void CalculatePossibleMoves(int row, int col, Board board)
         {
-           base.CalculatePossibleMoves(row, col, ge);
+           base.CalculatePossibleMoves(row, col, board);
 
             // Check if the square 2 up and 1 left is within the board boundaries (L shape move)
-            Square frontLeft = ge.GetSquareAtPos(row + (2 * colourModifier), col - (1 * colourModifier));
+            Square frontLeft = board.GetSquareAtPos(row + (2 * colourModifier), col - (1 * colourModifier));
 
             if (frontLeft != null)
             {
@@ -46,7 +46,7 @@ namespace TerminalChess
             }
 
             // Check if the square 2 up and 1 right is within the board boundaries (L shape move)
-            Square frontRight = ge.GetSquareAtPos(row + (2 * colourModifier), col + (1 * colourModifier));
+            Square frontRight = board.GetSquareAtPos(row + (2 * colourModifier), col + (1 * colourModifier));
 
             if (frontRight != null)
             {
@@ -64,7 +64,7 @@ namespace TerminalChess
             }
 
             // Check if the square 1 up and 2 left is within the board boundaries (L shape move)
-            Square left1 = ge.GetSquareAtPos(row + (1 * colourModifier), col - (2 * colourModifier));
+            Square left1 = board.GetSquareAtPos(row + (1 * colourModifier), col - (2 * colourModifier));
 
             if (left1 != null)
             {
@@ -82,7 +82,7 @@ namespace TerminalChess
             }
 
             // Check if the square 1 down and 2 left is within the board boundaries (L shape move)
-            Square left2 = ge.GetSquareAtPos(row - (1 * colourModifier), col - (2 * colourModifier));
+            Square left2 = board.GetSquareAtPos(row - (1 * colourModifier), col - (2 * colourModifier));
 
             if (left2 != null)
             {
@@ -100,7 +100,7 @@ namespace TerminalChess
             }
 
             // Check if the square 1 up and 2 right is within the board boundaries (L shape move)
-            Square right1 = ge.GetSquareAtPos(row + (1 * colourModifier), col + 2 * colourModifier);
+            Square right1 = board.GetSquareAtPos(row + (1 * colourModifier), col + 2 * colourModifier);
 
             if (right1 != null)
             {
@@ -118,7 +118,7 @@ namespace TerminalChess
             }
 
             // Check if the square 1 down and 2 right is within the board boundaries (L shape move)
-            Square right2 = ge.GetSquareAtPos(row - (1 * colourModifier), col + 2 * colourModifier);
+            Square right2 = board.GetSquareAtPos(row - (1 * colourModifier), col + 2 * colourModifier);
 
             if (right2 != null)
             {
@@ -136,7 +136,7 @@ namespace TerminalChess
             }
 
             // Check if the square 2 down and 1 left is within the board boundaries (L shape move)
-            Square backLeft = ge.GetSquareAtPos(row - (2 * colourModifier), col - (1 * colourModifier));
+            Square backLeft = board.GetSquareAtPos(row - (2 * colourModifier), col - (1 * colourModifier));
 
             if (backLeft != null)
             {
@@ -154,7 +154,7 @@ namespace TerminalChess
             }
 
             // Check if the square 2 down and 1 right is within the board boundaries (L shape move)
-            Square backRight = ge.GetSquareAtPos(row - (2 * colourModifier), col + (1 * colourModifier));
+            Square backRight = board.GetSquareAtPos(row - (2 * colourModifier), col + (1 * colourModifier));
 
             if (backRight != null)
             {

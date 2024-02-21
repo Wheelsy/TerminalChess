@@ -23,41 +23,41 @@ namespace TerminalChess
         /// <summary>
         /// Overriden method to caluculate the legal moves for a King
         /// </summary>
-        protected override void CalculatePossibleMoves(int row, int col, GameEngine ge)
+        protected override void CalculatePossibleMoves(int row, int col, Board board)
         {
-            base.CalculatePossibleMoves(row, col, ge);
+            base.CalculatePossibleMoves(row, col, board);
 
-            CheckDiagonalMove(row, col, 1, -1, ge); // Upper left diagonal
-            CheckDiagonalMove(row, col, -1, -1, ge); // Lower left diagonal
-            CheckDiagonalMove(row, col, -1, 1, ge); // Lower right diagonal
-            CheckForwardAndBackMove(row, col, 1, ge); // Check up moves
-            CheckForwardAndBackMove(row, col, -1, ge); // Check down moves
-            CheckLeftAndRightMove(row, col, 1, ge); // Check right moves
-            CheckLeftAndRightMove(row, col, -1, ge); // Check left moves
-            CheckCastling(ge);
+            CheckDiagonalMove(row, col, 1, -1, board); // Upper left diagonal
+            CheckDiagonalMove(row, col, -1, -1, board); // Lower left diagonal
+            CheckDiagonalMove(row, col, -1, 1, board); // Lower right diagonal
+            CheckForwardAndBackMove(row, col, 1, board); // Check up moves
+            CheckForwardAndBackMove(row, col, -1, board); // Check down moves
+            CheckLeftAndRightMove(row, col, 1, board); // Check right moves
+            CheckLeftAndRightMove(row, col, -1, board); // Check left moves
+            CheckCastling(board);
         }
 
-        private void CheckCastling(GameEngine ge)
+        private void CheckCastling(Board board)
         {
             if(!HasMoved && colour == Colour.Black)
             {
                 // Check black castle king side
-                if(ge.GetSquareAtPos(7, 7).piece != null)
+                if(board.GetSquareAtPos(7, 7).piece != null)
                 {
-                    if (!ge.GetSquareAtPos(7, 7).piece.HasMoved)
+                    if (!board.GetSquareAtPos(7, 7).piece.HasMoved)
                     {
-                        if (ge.GetSquareAtPos(7, 6).piece == null && ge.GetSquareAtPos(7, 5).piece == null)
+                        if (board.GetSquareAtPos(7, 6).piece == null && board.GetSquareAtPos(7, 5).piece == null)
                         {
                             possibleMoves.Add((7, 6));
                         }
                     }
                 }
                 // Check black castle queen side
-                if (ge.GetSquareAtPos(7, 0).piece != null)
+                if (board.GetSquareAtPos(7, 0).piece != null)
                 {
-                    if (!ge.GetSquareAtPos(7, 0).piece.HasMoved)
+                    if (!board.GetSquareAtPos(7, 0).piece.HasMoved)
                     {
-                        if (ge.GetSquareAtPos(7, 1).piece == null && ge.GetSquareAtPos(7, 2).piece == null && ge.GetSquareAtPos(7, 3).piece == null)
+                        if (board.GetSquareAtPos(7, 1).piece == null && board.GetSquareAtPos(7, 2).piece == null && board.GetSquareAtPos(7, 3).piece == null)
                         {
                             possibleMoves.Add((7, 2));
                         }
@@ -67,22 +67,22 @@ namespace TerminalChess
             else if(!HasMoved && colour == Colour.White)
             {
                 // Check white castle king side
-                if (ge.GetSquareAtPos(0, 7).piece != null)
+                if (board.GetSquareAtPos(0, 7).piece != null)
                 {
-                    if (!ge.GetSquareAtPos(0, 7).piece.HasMoved)
+                    if (!board.GetSquareAtPos(0, 7).piece.HasMoved)
                     {
-                        if (ge.GetSquareAtPos(0, 6).piece == null && ge.GetSquareAtPos(0, 5).piece == null)
+                        if (board.GetSquareAtPos(0, 6).piece == null && board.GetSquareAtPos(0, 5).piece == null)
                         {
                             possibleMoves.Add((0, 6));
                         }
                     }
                 }
                 // Check white castle queen side
-                if (ge.GetSquareAtPos(0, 0).piece != null)
+                if (board.GetSquareAtPos(0, 0).piece != null)
                 {
-                    if (!ge.GetSquareAtPos(0, 0).piece.HasMoved)
+                    if (!board.GetSquareAtPos(0, 0).piece.HasMoved)
                     {
-                        if (ge.GetSquareAtPos(0, 1).piece == null && ge.GetSquareAtPos(0, 2).piece == null && ge.GetSquareAtPos(0, 3).piece == null)
+                        if (board.GetSquareAtPos(0, 1).piece == null && board.GetSquareAtPos(0, 2).piece == null && board.GetSquareAtPos(0, 3).piece == null)
                         {
                             possibleMoves.Add((0, 2));
                         }
@@ -91,24 +91,24 @@ namespace TerminalChess
             }
         }
 
-        private void CheckDiagonalMove(int row, int col, int rowModifier, int colModifier, GameEngine ge)
+        private void CheckDiagonalMove(int row, int col, int rowModifier, int colModifier, Board board)
         {
-            CheckMove(row + 1 * rowModifier, col + 1 * colModifier, ge);
+            CheckMove(row + 1 * rowModifier, col + 1 * colModifier, board);
         }
 
-        private void CheckForwardAndBackMove(int row, int col, int rowModifier, GameEngine ge)
+        private void CheckForwardAndBackMove(int row, int col, int rowModifier, Board board)
         {
-            CheckMove(row + 1 * rowModifier, col, ge);
+            CheckMove(row + 1 * rowModifier, col, board);
         }
 
-        private void CheckLeftAndRightMove(int row, int col, int colModifier, GameEngine ge)
+        private void CheckLeftAndRightMove(int row, int col, int colModifier, Board board)
         {
-            CheckMove(row, col + 1 * colModifier, ge);
+            CheckMove(row, col + 1 * colModifier, board);
         }
 
-        private void CheckMove(int newRow, int newCol, GameEngine ge)
+        private void CheckMove(int newRow, int newCol, Board board)
         {
-            Square sqr = ge.GetSquareAtPos(newRow, newCol);
+            Square sqr = board.GetSquareAtPos(newRow, newCol);
 
             if (sqr != null)
             {

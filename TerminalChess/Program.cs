@@ -7,27 +7,32 @@ GameEngine ge;
 // Print terminal chess title
 utils.Print(utils.welcome);
 
-string menuSelection = "";
+string mainMenuSelection = "";
 
-while (menuSelection != "1")
+while (mainMenuSelection != "1")
 {
     // Print main menu
     utils.Print(utils.mainMenu);
 
     // Take the main menu response
-    menuSelection = utils.GetMenuSelection(Utils.MENU_TYPES.MAIN);
+    mainMenuSelection = utils.GetMenuSelection(Utils.MENU_TYPES.MAIN);
 
     // Start a new game
-    if (menuSelection == "0")
+    if (mainMenuSelection == "0")
     {
+        string newGameMenuSelection = "";
+
+        // Print new game menu
+        utils.Print(utils.newGameMenu);
+
         // Take the new game menu response
-        menuSelection = utils.GetMenuSelection(Utils.MENU_TYPES.NEW_GAME);
+        newGameMenuSelection = utils.GetMenuSelection(Utils.MENU_TYPES.NEW_GAME);
 
         Player p1 = null;
         Player p2 = null;
 
         // 2P game
-        if (menuSelection == "0")
+        if (newGameMenuSelection == "0")
         {
             utils.Print("\nEnter player 1 name:");
             string p1Name = Console.ReadLine();
@@ -37,17 +42,17 @@ while (menuSelection != "1")
 
             utils.Print("");
 
-            p1 = new(p1Name, false);
-            p2 = new(p2Name, false);
+            p1 = new(p1Name, false, Piece.Colour.White);
+            p2 = new(p2Name, false, Piece.Colour.Black);
         }
         // Vs AI game
-        else if (menuSelection == "1")
+        else if (newGameMenuSelection == "1")
         {
             utils.Print("Would you like to play as black or white? (b/w)");
             string bw = Console.ReadLine();
 
             // Validate black or white selection
-            while (!bw.ToUpper().Equals("B") || !bw.ToUpper().Equals("W"))
+            while (!bw.ToUpper().Equals("B") && !bw.ToUpper().Equals("W"))
             {
                 utils.Print("Invalid response try again:");
                 bw = Console.ReadLine();
@@ -58,13 +63,13 @@ while (menuSelection != "1")
 
             if (bw.ToUpper().Equals("W"))
             {
-                p1 = new(p1Name, false);
-                p2 = new("AI", true);
+                p1 = new(p1Name, false, Piece.Colour.White);
+                p2 = new("AI", true, Piece.Colour.Black);
             }
             else
             {
-                p1 = new("AI", true);
-                p2 = new(p1Name, false);
+                p1 = new("AI", true, Piece.Colour.White);
+                p2 = new(p1Name, false, Piece.Colour.Black);
             }
 
         }
@@ -87,12 +92,12 @@ while (menuSelection != "1")
         }
     }
     // Exit
-    else if (menuSelection == "1")
+    else if (mainMenuSelection == "1")
     {
         utils.Print(utils.goodbye);
     }
     // Credits
-    else if (menuSelection == "2")
+    else if (mainMenuSelection == "2")
     {
         utils.Print(utils.credits);
     }

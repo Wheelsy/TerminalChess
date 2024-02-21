@@ -23,14 +23,14 @@ namespace TerminalChess
         /// <summary>
         /// Overriden method to caluculate the legal moves for a Bishop
         /// </summary>
-        protected override void CalculatePossibleMoves(int row, int col, GameEngine ge)
+        protected override void CalculatePossibleMoves(int row, int col, Board board)
         {
-            base.CalculatePossibleMoves(row, col, ge);
+            base.CalculatePossibleMoves(row, col, board);
 
-            CheckDiagonalMoves(row, col, 1, 1, ge); // Upper right diagonal
-            CheckDiagonalMoves(row, col, 1, -1, ge); // Upper left diagonal
-            CheckDiagonalMoves(row, col, -1, -1, ge); // Lower left diagonal
-            CheckDiagonalMoves(row, col, -1, 1, ge); // Lower right diagonal
+            CheckDiagonalMoves(row, col, 1, 1, board); // Upper right diagonal
+            CheckDiagonalMoves(row, col, 1, -1, board); // Upper left diagonal
+            CheckDiagonalMoves(row, col, -1, -1, board); // Lower left diagonal
+            CheckDiagonalMoves(row, col, -1, 1, board); // Lower right diagonal
         }
 
         /// <summary>
@@ -41,11 +41,11 @@ namespace TerminalChess
         /// <param name="rowModifier"></param>
         /// <param name="colModifier"></param>
         /// <param name="ge"></param>
-        private void CheckDiagonalMoves(int row, int col, int rowModifier, int colModifier, GameEngine ge)
+        private void CheckDiagonalMoves(int row, int col, int rowModifier, int colModifier, Board board)
         {
             for (int i = 1; i < 8; i++)
             {
-                Square sqr = ge.GetSquareAtPos(row + i * rowModifier, col + i * colModifier);
+                Square sqr = board.GetSquareAtPos(row + i * rowModifier, col + i * colModifier);
 
                 if (sqr == null)
                 {

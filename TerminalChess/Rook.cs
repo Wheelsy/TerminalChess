@@ -23,14 +23,14 @@ namespace TerminalChess
         /// <summary>
         /// Overriden method to caluculate the legal moves for a Rook
         /// </summary>
-        protected override void CalculatePossibleMoves(int row, int col, GameEngine ge)
+        protected override void CalculatePossibleMoves(int row, int col, Board board)
         {
-            base.CalculatePossibleMoves(row, col, ge);
+            base.CalculatePossibleMoves(row, col, board);
 
-            CheckForwardAndBackMoves(row, col, 1, ge); // Check up moves
-            CheckForwardAndBackMoves(row, col, -1, ge); // Check down moves
-            CheckLeftAndRightMoves(row, col, 1, ge); // Check right moves
-            CheckLeftAndRightMoves(row, col, -1, ge); // Check left moves
+            CheckForwardAndBackMoves(row, col, 1, board); // Check up moves
+            CheckForwardAndBackMoves(row, col, -1, board); // Check down moves
+            CheckLeftAndRightMoves(row, col, 1, board); // Check right moves
+            CheckLeftAndRightMoves(row, col, -1, board); // Check left moves
         }
 
         /// <summary>
@@ -40,11 +40,11 @@ namespace TerminalChess
         /// <param name="col"></param>
         /// <param name="rowModifier"></param>
         /// <param name="ge"></param>
-        private void CheckForwardAndBackMoves(int row, int col, int rowModifier, GameEngine ge)
+        private void CheckForwardAndBackMoves(int row, int col, int rowModifier, Board board)
         {
             for (int i = 1; i < 8; i++)
             {
-                Square sqr = ge.GetSquareAtPos(row + i * rowModifier, col);
+                Square sqr = board.GetSquareAtPos(row + i * rowModifier, col);
 
                 if (sqr == null)
                 {
@@ -74,11 +74,11 @@ namespace TerminalChess
         /// <param name="col"></param>
         /// <param name="colModifier"></param>
         /// <param name="ge"></param>
-        private void CheckLeftAndRightMoves(int row, int col, int colModifier, GameEngine ge)
+        private void CheckLeftAndRightMoves(int row, int col, int colModifier, Board board)
         {
             for (int i = 1; i < 8; i++)
             {
-                Square sqr = ge.GetSquareAtPos(row, col + i * colModifier);
+                Square sqr = board.GetSquareAtPos(row, col + i * colModifier);
 
                 if (sqr == null)
                 {

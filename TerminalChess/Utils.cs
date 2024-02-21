@@ -96,7 +96,15 @@ namespace TerminalChess
                 switch (menuType)
                 {
                     case MENU_TYPES.MAIN:
-                        if(tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2"))
+                        // Return the main menu option selected
+                        if (tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2"))
+                        {
+                            return tmp;
+                        }
+                        break;
+                    case MENU_TYPES.NEW_GAME:
+                        // Return the new game option selected
+                        if (tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2"))
                         {
                             return tmp;
                         }
