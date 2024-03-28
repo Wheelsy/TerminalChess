@@ -23,6 +23,9 @@ namespace TerminalChess
         public int Value { get; set; }
         public bool HasMoved { get; set; }
 
+        public int col { get; set; }
+        public int row { get; set; }    
+
         protected List<(int, int)> possibleMoves;
         protected int colourModifier;
 
@@ -41,20 +44,21 @@ namespace TerminalChess
             HasMoved = false;
         }
 
-        public List<(int, int)> GetPossibleMoves(int row, int col, GameEngine ge)
+        public List<(int, int)> GetPossibleMoves(int row, int col, Board board)
         {
             if (possibleMoves.Count > 0)
             {
                 possibleMoves.Clear();
             }
-            CalculatePossibleMoves(row, col, ge);
-            return possibleMoves;
+
+            Task.Run(() => CalculatePossibleMoves(row, col, board)).Wait(); // Start the calculation on a separate thread
+            return possibleMoves.ToList(); // Return a copy of possibleMoves to ensure thread safety
         }
 
         /// <summary>
         /// Calculate possible moves of a piece. This is overriden by childeren.
         /// </summary>
-        protected virtual void CalculatePossibleMoves(int row, int col, GameEngine ge)
+        protected virtual void CalculatePossibleMoves(int row, int col, Board board)
         {
             this.colourModifier = (colour == Colour.White) ? 1 : -1;
         }

@@ -27,13 +27,13 @@ namespace TerminalChess
         /// <summary>
         /// Overriden method to caluculate the legal moves for a Pawn
         /// </summary>
-        protected override void CalculatePossibleMoves(int row, int col, GameEngine ge)
+        protected override void CalculatePossibleMoves(int row, int col, Board board)
         {
-            base.CalculatePossibleMoves(row, col, ge);
-            CheckEnPassent(ge, row, col);
+            base.CalculatePossibleMoves(row, col, board);
+            CheckEnPassent(board, row, col);
 
             // Check if the square in front is occupied
-            Square infront = ge.GetSquareAtPos(row + colourModifier, col);
+            Square infront = board.GetSquareAtPos(row + colourModifier, col);
 
             if (infront != null)
             {
@@ -45,7 +45,7 @@ namespace TerminalChess
                     if (row == 1 || row == 6)
                     {
                         // Check if the square 2 in front is occupied
-                        Square doubleMove = ge.GetSquareAtPos(row + (2 * colourModifier), col);
+                        Square doubleMove = board.GetSquareAtPos(row + (2 * colourModifier), col);
 
                         if (doubleMove != null)
                         {
@@ -59,7 +59,7 @@ namespace TerminalChess
             }    
 
             // Check diagonals
-            Square diagonal1 = ge.GetSquareAtPos(row + colourModifier, col + colourModifier);
+            Square diagonal1 = board.GetSquareAtPos(row + colourModifier, col + colourModifier);
 
             if (diagonal1 != null)
             {
@@ -72,7 +72,7 @@ namespace TerminalChess
                 }
             }
 
-            Square diagonal2 = ge.GetSquareAtPos(row + colourModifier, col - colourModifier);
+            Square diagonal2 = board.GetSquareAtPos(row + colourModifier, col - colourModifier);
 
             if (diagonal2 != null)
             {
@@ -87,10 +87,10 @@ namespace TerminalChess
         }
 
         // Check if this pawn can en passent
-        private void CheckEnPassent(GameEngine ge, int row, int col)
+        private void CheckEnPassent(Board board, int row, int col)
         {
-            Square s1 = ge.GetSquareAtPos(row, col + 1);
-            Square s2 = ge.GetSquareAtPos(row, col - 1);
+            Square s1 = board.GetSquareAtPos(row, col + 1);
+            Square s2 = board.GetSquareAtPos(row, col - 1);
 
             if (s1 != null)
             {
