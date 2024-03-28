@@ -61,6 +61,7 @@ while (mainMenuSelection != "1")
             utils.Print("\nEnter your name:");
             string p1Name = Console.ReadLine();
 
+            // Set up players
             if (bw.ToUpper().Equals("W"))
             {
                 p1 = new(p1Name, false, Piece.Colour.White);
@@ -100,6 +101,11 @@ while (mainMenuSelection != "1")
     else if (mainMenuSelection == "2")
     {
         utils.Print(utils.credits);
+    }
+    // HTP
+    else if (mainMenuSelection == "3")
+    {
+        utils.Print(utils.howToPlay);
     }
 }
 

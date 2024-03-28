@@ -52,6 +52,22 @@ namespace TerminalChess
 
             """;
 
+        public string howToPlay =
+          """
+
+            Terminal chess notation is as follows:
+            E2TOE4 
+
+            This move can be broken down into 3 sections:
+
+            1 - E2: This is the origin square (Colum E, Row 2)
+            2 - TO: Self explanitary.
+            3 - E4: This is the destination square (Colum E, Row 4)
+
+            **Note this is not case sensitive but the rest must remain the same e.g. no spaces.
+
+            """;
+
         public string promotion =
             """
              N   B   R   Q
