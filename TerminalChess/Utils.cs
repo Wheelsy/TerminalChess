@@ -33,6 +33,7 @@ namespace TerminalChess
             [0] 2P
             [1] Vs AI
             [2] Back
+            [3] How to play
 
             """;
 
