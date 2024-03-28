@@ -24,6 +24,7 @@ namespace TerminalChess
             [0] New game
             [1] Exit application
             [2] Credits
+            [3] How to play
 
             """;
 
@@ -33,7 +34,6 @@ namespace TerminalChess
             [0] 2P
             [1] Vs AI
             [2] Back
-            [3] How to play
 
             """;
 
