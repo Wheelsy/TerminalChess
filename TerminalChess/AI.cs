@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 using static TerminalChess.Piece;
 
 namespace TerminalChess
@@ -12,7 +13,7 @@ namespace TerminalChess
     internal class AI
     {
         private Dictionary<string, float> rewards;
-        private int[] centerBoardBoundary = { 2, 5 };
+        private int[] centerBoardBoundary = { 1, 6 };
 
         public AI()
         {
@@ -20,12 +21,22 @@ namespace TerminalChess
             rewards = new Dictionary<string, float>
             {
                 { "Piece Capture", 0f }, // Replace 0 with captured piece point value
-                { "Check", 2f },
+                { "Check", 2.5f },
                 { "Checkmate", 100f },
+                { "Escape capture", 1.5f },
                 { "No capture center of board", 0.5f },
-                { "No capture edge of board", 0f }
+                { "No capture edge of board", -0.5f }
             };
         }
+
+        /// <summary>
+        /// Search through all possible moves to find and execute the best
+        /// </summary>
+        /// <param name="ge"></param>
+        /// <param name="board"></param>
+        /// <param name="colour"></param>
+        /// <param name="opponent"></param>
+        /// <exception cref="Exception"></exception>
         public void GenerateBestMove(GameEngine ge, Board board, Colour colour, Player opponent)
         {
             Utils utils = new();
@@ -83,12 +94,15 @@ namespace TerminalChess
                     ge.ValidateTurn(turn);
 
                     foundValidMove = true;
+
                     utils.Print(turn);
+
                     // Exit the loop since a valid move is found
                     break;
                 }
                 catch (ChessException e)
                 {
+                    Console.WriteLine(e.Message);
                     // Move is invalid, continue to the next move
                     continue;
                 }
@@ -97,23 +111,40 @@ namespace TerminalChess
             // If no valid move was found, handle the situation here (e.g., throw an exception or return a default move)
             if (!foundValidMove)
             {
+                ge.CheckStalemate();
                 throw new Exception("No valid move found.");
             }
         }
 
+        /// <summary>
+        /// Calculate the rewardd value for a move
+        /// </summary>
+        /// <param name="board"></param>
+        /// <param name="ge"></param>
+        /// <param name="curSquare"></param>
+        /// <param name="toCol"></param>
+        /// <param name="toRow"></param>
+        /// <param name="colour"></param>
+        /// <param name="opponent"></param>
+        /// <returns></returns>
         public float CalculateReward(Board board, GameEngine ge, Square curSquare, int toCol, int toRow, Colour colour, Player opponent)
         {
-            bool capture = false;
             float reward = 0;
+            int myValue = 0;
 
-            // Simulate the move
-            Square backupCurSquare = new Square(curSquare.row, curSquare.col, curSquare.piece);
+            if (curSquare.piece != null)
+            {
+                myValue = curSquare.piece.Value;
+            }
+            
+            // Check if this piece is currently threatened
+            if(CheckForReturnCaptue(curSquare, board, opponent.Colour))
+            {
+                reward += rewards["Escape capture"];
+            }
+
+            // Get the destination square
             Square newSquare = board.GetSquareAtPos(toRow, toCol);
-            Square backupNewSquare = new Square(toRow, toCol, newSquare?.piece);
-
-            // Update the board state
-            newSquare.piece = curSquare.piece;
-            curSquare.piece = null;
 
             // If opponent is checkmated immediately return the move
             if (ge.IsOpponentCheckmated())
@@ -124,52 +155,116 @@ namespace TerminalChess
             // Check
             if (ge.IsPlayerInCheck(opponent))
             {
-                if (rewards["Check"] > reward)
-                {
-                    reward = rewards["Check"];
-                }
+
+                reward += rewards["Check"];
+
             }
 
             // Check for captured piece
-            if (backupNewSquare.piece != null)
+            if (newSquare.piece != null)
             {
-                capture = true;
-                if (backupNewSquare.piece.Value >= reward)
+                // Null the destination piece so a simulation can be run to determine if opponent 
+                // pieces can move to the square
+                Piece p = newSquare.piece;
+                newSquare.piece = curSquare.piece;
+                bool canBeReturnCaptured = CheckForReturnCaptue(newSquare, board, opponent.Colour);
+                // Place the piece back
+                newSquare.piece = p;
+
+                // AI will capture a piece but also be return captured
+                if (canBeReturnCaptured)
                 {
-                    reward = backupNewSquare.piece.Value;
+                    reward += (newSquare.piece.Value - myValue);
                 }
+                // If there is a free capture return the reward without checking for the center of the board
+                else if (!canBeReturnCaptured)
+                {
+                    reward += newSquare.piece.Value;
+                    return reward;
+                }
+            }
+            // Check for AI not capturing a piece but be return captured 
+            else
+            {
+                Piece p = newSquare.piece;
+                newSquare.piece = curSquare.piece;
+                if (CheckForReturnCaptue(newSquare, board, opponent.Colour))
+                {
+                    reward -= myValue;
+                }
+                newSquare.piece = p;
             }
 
             // Check center and edge of board moves with no capture
             if (toRow >= centerBoardBoundary[0] && toRow <= centerBoardBoundary[1] && toCol >= centerBoardBoundary[0] && toCol <= centerBoardBoundary[1])
             {
-                if (rewards["No capture center of board"] > reward)
-                {
-                    reward = rewards["No capture center of board"];
-                }
+                reward += rewards["No capture center of board"];
+
             }
             else
             {
-                if (rewards["No capture edge of board"] > reward)
-                {
-                    reward = rewards["No capture edge of board"];
-                }
-            }
+                reward += rewards["No capture edge of board"];
 
-            // Undo the simulated move
-            ge.UndoMove(newSquare, curSquare, backupNewSquare, backupCurSquare, capture);
+            }
 
             return reward;
         }
 
+        /// <summary>
+        /// Check if the move will result in a return capture
+        /// </summary>
+        /// <param name="square"></param>
+        /// <param name="board"></param>
+        /// <param name="colour"></param>
+        /// <returns>True if there is a return capture. Flase if not</returns>
+        private bool CheckForReturnCaptue(Square square, Board board, Colour colour)
+        {
+            // Get the opponent's pieces
+            var opponentSquares = board.GetAllSquaresWithPiecesOfOneColour(colour);
+
+            // Iterate over opponent's pieces to check for potential captures
+            foreach (var opponentSquare in opponentSquares)
+            {
+                // Check if the opponent's piece can capture the square
+                if (opponentSquare.piece != null && opponentSquare.piece.GetPossibleMoves(opponentSquare.row, opponentSquare.col, board).Contains((square.row, square.col)))
+                {
+                    // Ignore pawn forward movement as this is not a capture
+                    if(opponentSquare.piece is Pawn && opponentSquare.col == square.col)
+                    {
+                        continue;
+                    }
+
+                    // The square can be captured by the opponent
+                    return true;
+                }
+            }
+
+            // No immediate capture by the opponent
+            return false;
+        }
+
+
+        /// <summary>
+        /// Create the turn string to send to the game engine
+        /// </summary>
+        /// <param name="curRow"></param>
+        /// <param name="curCol"></param>
+        /// <param name="toRow"></param>
+        /// <param name="toCol"></param>
+        /// <returns>Turn string</returns>
         private string ParseCoordinateToTurnString(int curRow, int curCol, int toRow, int toCol)
         {
             char curColChar = IntColToCharCol(curCol);
             char toColChar = IntColToCharCol(toCol);
 
-            return $"{curColChar}{curRow+1}TO{toColChar}{toRow+1}";
+            return $"{curColChar}{curRow + 1}TO{toColChar}{toRow + 1}";
         }
 
+        /// <summary>
+        /// Convert collum characters into int coordinateds
+        /// </summary>
+        /// <param name="col"></param>
+        /// <returns>Character representing a collum</returns>
         private char IntColToCharCol(int col)
         {
             char colChar = ' ';

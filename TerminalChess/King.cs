@@ -27,6 +27,8 @@ namespace TerminalChess
         {
             base.CalculatePossibleMoves(row, col, board);
 
+
+            CheckDiagonalMove(row, col, 1, 1, board); // Upper right diagonal
             CheckDiagonalMove(row, col, 1, -1, board); // Upper left diagonal
             CheckDiagonalMove(row, col, -1, -1, board); // Lower left diagonal
             CheckDiagonalMove(row, col, -1, 1, board); // Lower right diagonal

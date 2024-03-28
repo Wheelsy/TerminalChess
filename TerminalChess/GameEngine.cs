@@ -220,7 +220,7 @@ namespace TerminalChess
                     }
                     else
                     {
-                        throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
+                        throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE, CurrentPlayer.IsAI);
                     }
                 }
 
@@ -297,13 +297,13 @@ namespace TerminalChess
             //Check the player has selected a square that contains a piece
             if (curSquare.piece == null)
             {
-                throw new ChessException(CHESS_EXCEPTION_TYPE.NO_PIECE);
+                throw new ChessException(CHESS_EXCEPTION_TYPE.NO_PIECE, CurrentPlayer.IsAI);
             }
 
             // Check the player has selected the correct colour piece
             if (CurrentPlayer.Colour != curSquare.piece.colour)
             {
-               throw new ChessException(CHESS_EXCEPTION_TYPE.OPPONENTS_PIECE); 
+               throw new ChessException(CHESS_EXCEPTION_TYPE.OPPONENTS_PIECE, CurrentPlayer.IsAI); 
             }
 
             // Check if the proposed move is found in the list of possible moves
@@ -311,7 +311,7 @@ namespace TerminalChess
 
             if (!IsMoveValid(validMoves, moveToRow, moveToCol))
             {
-                throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
+                throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE, CurrentPlayer.IsAI);
             }
 
             // Get the destination square
@@ -326,7 +326,9 @@ namespace TerminalChess
             {
                 if (newSquare.piece.colour == CurrentPlayer.Colour)
                 {
-                    throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE);
+                    // Reset the board state
+                    UndoMove(newSquare, curSquare, backupNewSquare, backupCurSquare, pieceCaptured);
+                    throw new ChessException(CHESS_EXCEPTION_TYPE.INVALID_MOVE, CurrentPlayer.IsAI);
                 }
 
                 backupNewSquare.piece.HasMoved = newSquare.piece.HasMoved;
@@ -379,7 +381,7 @@ namespace TerminalChess
                 // Reset the board state
                 UndoMove(newSquare, curSquare, backupNewSquare, backupCurSquare, pieceCaptured);
 
-                throw new ChessException(CHESS_EXCEPTION_TYPE.END_IN_CHECK);
+                throw new ChessException(CHESS_EXCEPTION_TYPE.END_IN_CHECK, CurrentPlayer.IsAI);
             }
 
             // Update double move bool for purposes of en passent
@@ -522,7 +524,7 @@ namespace TerminalChess
                         curSquare.piece = f1.piece;
                         f1.piece = null;
 
-                        throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK);
+                        throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK, CurrentPlayer.IsAI);
                     }
 
                     curSquare.piece = f1.piece;
@@ -540,7 +542,7 @@ namespace TerminalChess
                         {
                             curSquare.piece = moveThroughSquare.piece;
                             moveThroughSquare.piece = null;
-                            throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK);
+                            throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK, CurrentPlayer.IsAI);
                         }
 
                         curSquare.piece = moveThroughSquare.piece;
@@ -557,7 +559,7 @@ namespace TerminalChess
                     {
                         curSquare.piece = f8.piece;
                         f8.piece = null;
-                        throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK);
+                        throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK, CurrentPlayer.IsAI);
                     }
 
                     curSquare.piece = f8.piece;
@@ -575,7 +577,7 @@ namespace TerminalChess
                         {
                             curSquare.piece = moveThroughSquare.piece;
                             moveThroughSquare.piece = null;
-                            throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK);
+                            throw new ChessException(CHESS_EXCEPTION_TYPE.CASTLE_THROUGH_CHECK, CurrentPlayer.IsAI);
                         }
 
                         curSquare.piece = moveThroughSquare.piece;

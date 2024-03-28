@@ -22,7 +22,7 @@ namespace TerminalChess
             "The square you have selected does not contain a piece!"
         };
 
-        public ChessException(CHESS_EXCEPTION_TYPE type) : base(messages[(int)type])
+        public ChessException(CHESS_EXCEPTION_TYPE type, bool isAI = false) : base(isAI ? null : messages[(int)type])
         {
         }
 

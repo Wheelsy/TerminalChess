@@ -101,6 +101,7 @@ namespace TerminalChess
                         {
                             return tmp;
                         }
+                        tmp = null;
                         break;
                     case MENU_TYPES.NEW_GAME:
                         // Return the new game option selected
@@ -108,6 +109,7 @@ namespace TerminalChess
                         {
                             return tmp;
                         }
+                        tmp = null;
                         break;
                     case MENU_TYPES.OPTIONS:
                         // Return the options option selected
@@ -115,6 +117,7 @@ namespace TerminalChess
                         {
                             return tmp;
                         }
+                        tmp = null;
                         break;
                     case MENU_TYPES.PROMOTION:
                         // Return the promotion option selected
@@ -122,6 +125,7 @@ namespace TerminalChess
                         {
                             return tmp;
                         }
+                        tmp = null;
                         break;
                     // Wrong input. Restart the loop
                     default:
