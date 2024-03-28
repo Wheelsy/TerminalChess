@@ -114,7 +114,7 @@ namespace TerminalChess
                 {
                     case MENU_TYPES.MAIN:
                         // Return the main menu option selected
-                        if (tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2"))
+                        if (tmp.Equals("0") || tmp.Equals("1") || tmp.Equals("2") || tmp.Equals("3"))
                         {
                             return tmp;
                         }
